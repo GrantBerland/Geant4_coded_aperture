@@ -206,7 +206,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 					         placementY*cm,
 						 0.));
 
- 
+  // starts at 1 since logicAp1 uses first line of file 
   for(int i=1; i<numberOfBoxes; i++)
   {
 
