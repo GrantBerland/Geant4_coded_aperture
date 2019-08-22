@@ -1,11 +1,11 @@
 import numpy as np
 
-boxSize = 0.05;
+boxSize = 0.07;
 dimX = 4.;
 dimY = 4.;
 
 # p, must be prime!
-gridSizeX = 37 
+gridSizeX = 23 
 gridSizeY = gridSizeX; # (square)
 
 def jacobi(a, n):
@@ -79,8 +79,8 @@ with open("coded_aperture_array.txt", 'w') as f, open("decoding_matrix.txt", 'w'
             
             d.write(str(i) + "," + str(j) + "," + str(decode) + "\n")
 
-            boxLocArrayX = (i + 1) * boxSize; 
-            boxLocArrayY = (j + 1) * boxSize;
+            boxLocArrayX = (i) * boxSize; 
+            boxLocArrayY = (j) * boxSize;
 
             if block == 1:
                 # Write original and 3 reflections about x, y, and x & y

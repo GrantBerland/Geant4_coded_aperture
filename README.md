@@ -1,1 +1,1 @@
-# Geant4 Coded Aperature Simulation
+# Geant4 Coded Aperture Simulation

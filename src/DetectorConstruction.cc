@@ -45,8 +45,9 @@
 #include "G4IntersectionSolid.hh"
 #include "G4RotationMatrix.hh"
 #include "G4SubtractionSolid.hh"
+#include "G4UnionSolid.hh"
 #include "G4AssemblyVolume.hh"
-
+#include "G4VisAttributes.hh"
 
 DetectorConstruction::DetectorConstruction()
 : G4VUserDetectorConstruction(),
@@ -146,7 +147,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   G4double boxXY 	   = 4.*cm;
   G4double boxZ  	   = 2.5*mm;
-  G4double aperatureSquare = 0.05*cm;
+  G4double aperatureSquare = 0.07*cm;
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
@@ -162,24 +163,25 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4Box* coded_box = new G4Box("Coded-box",
 		  		aperatureSquare/2.,
 				aperatureSquare/2.,
-				boxZ);
+				boxZ+5.*mm);
   
   
-  G4SubtractionSolid* swapSolid;
+  G4UnionSolid* swapSolid;
   G4String placementXY_str; 
   G4double placementX, placementY; 
   G4String token;
-  std::ifstream placementFile("coded_aperature_array.txt", std::ios_base::in);
+  std::ifstream placementFile("coded_aperture_array.txt", std::ios_base::in);
   
   // Get number of lines in file
   int numberOfBoxes = 0;
   while(getline(placementFile, placementXY_str, '\n'))
-  { numberOfBoxes++; }
+    { numberOfBoxes++; }
+  
   placementFile.close();
- 
-  // Reopen file to start from first line
-  placementFile.open("coded_aperature_array.txt", std::ios_base::in);
 
+
+  // Reopen file to start from first line
+  placementFile.open("coded_aperture_array.txt", std::ios_base::in);
   getline(placementFile, placementXY_str, '\n');
   
   token = placementXY_str.substr(
@@ -194,17 +196,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   placementY = std::stod(token);
   
+
+  G4UnionSolid* coded_boxes = new G4UnionSolid("Combined-boxes",
+		  				coded_box,
+						coded_box,
+						rotm,
+						G4ThreeVector(
+							placementX*cm,
+							placementY*cm,
+							0.)); 
   
-  
-  // First subtraction
-  G4SubtractionSolid* logicAp1 = 
-	    new G4SubtractionSolid("Aperature-base",
-	  			   aperature_base,
-	  			   coded_box,
-	  			   rotm,
-	  			   G4ThreeVector(placementX*cm,
-					         placementY*cm,
-						 0.));
 
   // starts at 1 since logicAp1 uses first line of file 
   for(int i=1; i<numberOfBoxes; i++)
@@ -224,8 +225,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     
     placementY = std::stod(token); 
 
-    swapSolid = new G4SubtractionSolid("Aperature-base",
-	  			   logicAp1,
+    swapSolid = new G4UnionSolid("Aperature-base",
+	  			   coded_boxes,
 	  			   coded_box,
 	  			   rotm,
 	  			   G4ThreeVector(placementX*cm,
@@ -233,16 +234,23 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 						 0.)
 				       );
  
-    logicAp1 = swapSolid;
+    coded_boxes = swapSolid;
   }
   
   placementFile.close();
 
+  G4SubtractionSolid* logicAp1 = 
+	    new G4SubtractionSolid("Aperature-base",
+	  			   aperature_base,
+	  			   coded_boxes,
+	  			   rotm,
+	  			   G4ThreeVector(0.,0.,0.));
 
   G4LogicalVolume* logic_aperature_base =
     new G4LogicalVolume(logicAp1,            //its solid
                         nist->FindOrBuildMaterial("G4_W"), // material
                         "Aperature-base");         //its name
+
 
 
   // Assembly method
