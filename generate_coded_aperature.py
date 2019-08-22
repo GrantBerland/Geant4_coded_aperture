@@ -1,7 +1,4 @@
 import numpy as np
-import time
-
-np.random.seed(int(time.time()))
 
 boxSize = 0.05;
 dimX = 4.;

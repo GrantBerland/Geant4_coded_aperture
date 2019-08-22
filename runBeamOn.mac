@@ -10,10 +10,10 @@
 
 
 # Set low energy EM processes, including fluorescence
-/process/em/fluo true
+/process/em/fluo false 
 /process/em/auger false
 /process/em/augerCascade false
-/process/em/pixe true
+/process/em/pixe false
 /process/em/deexcitationIgnoreCut false
 
 
@@ -27,5 +27,4 @@
 /tracking/verbose 0
 
 
-/run/beamOn 10000 
-
+/run/beamOn 1000

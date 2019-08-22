@@ -80,9 +80,6 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   
   G4Track* track = aStep->GetTrack();
 
-  // Particles are background by default
-  G4bool isBackground = true;
-
   // Get pre and post step logical volume names
   if (track->GetVolume()) {volName = track->GetVolume()->GetName();}
   if (track->GetNextVolume()) {nextVolName = track->GetNextVolume()->GetName();}
