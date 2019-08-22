@@ -1,8 +1,0 @@
-/home/grant/Documents/Research/Marshall_Research/AEPEX/coded_aperature_optics/build/CMakeFiles/install/strip.dir
-/home/grant/Documents/Research/Marshall_Research/AEPEX/coded_aperature_optics/build/CMakeFiles/install/local.dir
-/home/grant/Documents/Research/Marshall_Research/AEPEX/coded_aperature_optics/build/CMakeFiles/B1.dir
-/home/grant/Documents/Research/Marshall_Research/AEPEX/coded_aperature_optics/build/CMakeFiles/main.dir
-/home/grant/Documents/Research/Marshall_Research/AEPEX/coded_aperature_optics/build/CMakeFiles/edit_cache.dir
-/home/grant/Documents/Research/Marshall_Research/AEPEX/coded_aperature_optics/build/CMakeFiles/rebuild_cache.dir
-/home/grant/Documents/Research/Marshall_Research/AEPEX/coded_aperature_optics/build/CMakeFiles/install.dir
-/home/grant/Documents/Research/Marshall_Research/AEPEX/coded_aperature_optics/build/CMakeFiles/list_install_components.dir
