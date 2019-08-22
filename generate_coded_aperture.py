@@ -69,7 +69,7 @@ def MURA_decoding_matrix(i,j, block):
 
 MURAmatrix = np.zeros([gridSizeX, gridSizeY]);
 MURAdecodeMatrix = np.ones([gridSizeX, gridSizeY]);
-with open("coded_aperature_array.txt", 'w') as f, open("decoding_matrix.txt", 'w') as d:
+with open("coded_aperture_array.txt", 'w') as f, open("decoding_matrix.txt", 'w') as d:
     d.write("i,j,d\n") 
     for i in range(0, gridSizeX):
         for j in range(0, gridSizeY):

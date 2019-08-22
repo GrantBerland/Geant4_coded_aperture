@@ -170,7 +170,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double placementX, placementY; 
   G4String token;
   std::ifstream placementFile("coded_aperature_array.txt", std::ios_base::in);
-     
+  
+  // Get number of lines in file
+  int numberOfBoxes = 0;
+  while(getline(placementFile, placementXY_str, '\n'))
+  { numberOfBoxes++; }
+  placementFile.close();
+ 
+  // Reopen file to start from first line
+  placementFile.open("coded_aperature_array.txt", std::ios_base::in);
+
   getline(placementFile, placementXY_str, '\n');
   
   token = placementXY_str.substr(
@@ -198,9 +207,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 						 0.));
 
  
-  int numberOfBoxes = 2736;
   for(int i=1; i<numberOfBoxes; i++)
-  //while(getline(placementFile, placementXY_str, '\n')) 
   {
 
     getline(placementFile, placementXY_str, '\n');
@@ -217,7 +224,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     
     placementY = std::stod(token); 
 
-     swapSolid = new G4SubtractionSolid("Aperature-base",
+    swapSolid = new G4SubtractionSolid("Aperature-base",
 	  			   logicAp1,
 	  			   coded_box,
 	  			   rotm,

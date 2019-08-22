@@ -37,7 +37,7 @@ file(GLOB geometryGDML ${PROJECT_SOURCE_DIR}/GDML_files/*.gdml)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(main shielding_sim_main.cc ${sources} ${headers} ${geometrySTL} ${geometryGDML})
+add_executable(main coded_aperture_main.cc ${sources} ${headers} ${geometrySTL} ${geometryGDML})
 target_link_libraries(main ${Geant4_LIBRARIES})
 
 #----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ set(EXAMPLEB1_SCRIPTS
   init_vis.mac
   vis.mac
   runBeamOn.mac
-  generate_coded_aperature.py
+  generate_coded_aperture.py
   )
 
 foreach(_script ${EXAMPLEB1_SCRIPTS})
