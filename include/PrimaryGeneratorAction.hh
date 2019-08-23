@@ -39,6 +39,7 @@
 class G4ParticleGun;
 class G4Event;
 class G4Box;
+class PrimaryGeneratorMessenger;
 
 /// The primary generator action class with particle gun.
 ///
@@ -55,6 +56,9 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     // method from the base class
     virtual void GeneratePrimaries(G4Event* anEvent);         
 
+    void SetDistType(G4int dType){ fDistType = dType; };
+    void SetFoldingEnergy(G4double ene){ fE0 = ene; }; 
+
     // Method to access particle gun
     const G4ParticleGun* GetParticleGun() const { return fParticleGun; }
 
@@ -65,8 +69,13 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4double lossConeAngleDeg;
     G4double photonPhiLimitDeg;
 
+    G4int    fDistType;
+    G4double fE0;
+
     G4ParticleDefinition* electronParticle; 
-    G4ParticleDefinition* photonParticle; 
+    G4ParticleDefinition* photonParticle;
+
+    PrimaryGeneratorMessenger* fPrimaryMessenger;
   
 };
 

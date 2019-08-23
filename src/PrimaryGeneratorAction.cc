@@ -30,6 +30,8 @@
 
 #include "PrimaryGeneratorAction.hh"
 
+#include "PrimaryGeneratorMessenger.hh"
+
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Box.hh"
@@ -52,13 +54,18 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fParticleGun(0),
   fPI(3.14159265358979323846),
   lossConeAngleDeg(64.),
-  photonPhiLimitDeg(45.), // based on 1000 km diameter event
+  photonPhiLimitDeg(45.),  // based on 1000 km diameter event
+  fDistType(0),
+  fE0(100.),
   electronParticle(0),
-  photonParticle(0)
+  photonParticle(0),
+  fPrimaryMessenger()
 {
 
   fParticleGun  = new G4ParticleGun();
- 
+
+  fPrimaryMessenger = new PrimaryGeneratorMessenger(this);
+
   electronParticle = G4ParticleTable::GetParticleTable()->FindParticle("e-");
   
   photonParticle = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
@@ -70,6 +77,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
   delete fParticleGun;
+  delete fPrimaryMessenger;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -87,19 +95,17 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double x, y, z;
   G4double xDir, yDir, zDir;
 
-  G4double E0     = 300. * keV;
-  G4double energy = -E0 * std::log(1 - G4UniformRand());
+  G4double energy = -fE0 * std::log(1 - G4UniformRand());
   G4double narrowingOffset;
   
-  G4int distType = 1;
   
-  switch(distType)
+  switch(fDistType)
   {
 	case 0: // point source, near
-  		x = y = 0;
+  		x = y = 0.;
   		z = -20.*cm;
 
-  		narrowingOffset = 0.5;
+  		narrowingOffset = 0.2;
   		xDir = G4UniformRand()*narrowingOffset-narrowingOffset/2.;
   		yDir = G4UniformRand()*narrowingOffset-narrowingOffset/2.;
   		zDir = 1;
@@ -108,7 +114,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	case 1: // point source, infinitely far
 		x = G4UniformRand()*40 - 20; x *= mm;
 		y = G4UniformRand()*40 - 20; y *= mm;
-		z = -20.*cm;
+		z = -50.*cm;
 
 		xDir = yDir = 0;
 		zDir = 1;
@@ -123,7 +129,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		  G4ThreeVector(xDir, yDir, zDir));
   fParticleGun->SetParticleEnergy(energy);
   fParticleGun->GeneratePrimaryVertex(anEvent);
-
 
 }
 

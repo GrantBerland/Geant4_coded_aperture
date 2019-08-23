@@ -26,5 +26,10 @@
 /event/verbose 0
 /tracking/verbose 0
 
+# 0 = near point source
+# 1 = infinitely far away point source
+/energy/setDistributionType 0
+/energy/setFoldingEnergy 100    # [keV]
+
 
 /run/beamOn 1000

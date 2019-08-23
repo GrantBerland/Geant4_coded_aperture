@@ -102,12 +102,12 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     const G4double ene = aStep->GetPostStepPoint()->GetKineticEnergy();
     
     // Get generated particle position, energy, and momentum direction
+    //const G4ThreeVector vtx = track->GetVertexPosition();
     const G4ThreeVector vtx = track->GetVertexPosition();
 
     // Redlen lower energy detection threshold
     if(ene > 50.*keV) LogParticle(pos, vtx); 
   }    
-  
 
 }
 

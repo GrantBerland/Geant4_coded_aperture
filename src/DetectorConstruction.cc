@@ -68,7 +68,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   // Envelope parameters
   //
-  G4double env_sizeXY = 20*cm, env_sizeZ = 30*cm;
+  G4double env_sizeXY = 30*cm, env_sizeZ = 30*cm;
 
     // Material: Vacuum
     //TODO: check pressures, environment for Van Allen belt altitudes
@@ -146,7 +146,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   
   G4double boxXY 	   = 4.*cm;
-  G4double boxZ  	   = 2.5*mm;
+  G4double boxZ  	   = 5.*mm;
   G4double aperatureSquare = 0.07*cm;
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
@@ -176,6 +176,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   int numberOfBoxes = 0;
   while(getline(placementFile, placementXY_str, '\n'))
     { numberOfBoxes++; }
+  
+  // Override of numberOfBoxes to allow the graphics to render
+  //numberOfBoxes = 4; 
   
   placementFile.close();
 
