@@ -1,11 +1,13 @@
 import numpy as np
 
-boxSize = 0.07;
+boxSize = 0.1;
 dimX = 4.;
 dimY = 4.;
 
-# p, must be prime!
-gridSizeX = 23 
+centeringShift = 0.2;
+
+# p, must be prime and satisfy L = 4*m + 1, for m in Z
+gridSizeX = 37 
 gridSizeY = gridSizeX; # (square)
 
 def jacobi(a, n):
@@ -79,19 +81,19 @@ with open("coded_aperture_array.txt", 'w') as f, open("decoding_matrix.txt", 'w'
             
             d.write(str(i) + "," + str(j) + "," + str(decode) + "\n")
 
-            boxLocArrayX = (i) * boxSize; 
-            boxLocArrayY = (j) * boxSize;
+            boxLocArrayX = (i) * boxSize - dimX/2. + centeringShift; 
+            boxLocArrayY = (j) * boxSize - dimY/2. + centeringShift;
 
             if block == 1:
                 # Write original and 3 reflections about x, y, and x & y
                 f.write(str(round(boxLocArrayX, 4)) + "," 
                         + str(round(boxLocArrayY, 4)) + "\n")
-                f.write(str(round(-boxLocArrayX, 4)) + "," 
-                        + str(round(boxLocArrayY, 4)) + "\n")
-                f.write(str(round(-boxLocArrayX, 4)) + "," 
-                        + str(round(-boxLocArrayY, 4)) + "\n")
-                f.write(str(round(boxLocArrayX, 4)) + "," 
-                        + str(round(-boxLocArrayY, 4)) + "\n")
+                #f.write(str(round(-boxLocArrayX, 4)) + "," 
+                #        + str(round(boxLocArrayY, 4)) + "\n")
+                #f.write(str(round(-boxLocArrayX, 4)) + "," 
+                #        + str(round(-boxLocArrayY, 4)) + "\n")
+                #f.write(str(round(boxLocArrayX, 4)) + "," 
+                #        + str(round(-boxLocArrayY, 4)) + "\n")
             
                 MURAmatrix[i,j] = 1; 
 
