@@ -16,7 +16,7 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* pri
   fPrimDir->SetGuidance("Select folding energy and spatial distribution type.");
 
   fcmd = new G4UIcmdWithAnInteger("/energy/setDistributionType",this);
-  fcmd->SetParameterName("0-Near point source, 1-Far away point source. ",true);
+  fcmd->SetParameterName("0-Near point source, 1-Far away point source, 2-Circular source. ",true);
   fcmd->SetDefaultValue(0);
   fcmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 

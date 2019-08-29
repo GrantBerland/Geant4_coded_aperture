@@ -94,6 +94,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   G4double x, y, z;
   G4double xDir, yDir, zDir;
+  G4double theta, R;
 
   G4double energy = -fE0 * std::log(1 - G4UniformRand());
   G4double narrowingOffset;
@@ -114,12 +115,21 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	case 1: // point source, infinitely far
 		x = G4UniformRand()*40 - 20; x *= mm;
 		y = G4UniformRand()*40 - 20; y *= mm;
-		z = -50.*cm;
+		z = -20.*cm;
 
 		xDir = yDir = 0;
 		zDir = 1;
 		break;
-
+	case 2: // structured circle
+		R = 10.*mm;
+		theta = G4UniformRand() * 2. * 3.1415926;
+		x = R * std::cos(theta);
+		y = R * std::sin(theta);
+		z = -20.*cm;
+	
+		xDir = yDir = 0;
+		zDir = 1;
+		break;
 	default:
 		throw std::invalid_argument("Choose distribution type!");
   }
