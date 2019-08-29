@@ -28,8 +28,8 @@
 
 # 0 = near point source
 # 1 = infinitely far away point source
-/energy/setDistributionType 2
+/energy/setDistributionType 0
 /energy/setFoldingEnergy 100    # [keV]
 
 
-/run/beamOn 1000
+/run/beamOn 100000

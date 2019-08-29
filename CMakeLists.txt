@@ -50,7 +50,9 @@ target_link_libraries(main ${Geant4_LIBRARIES})
 set(EXAMPLEB1_SCRIPTS
   init_vis.mac
   vis.mac
-  runBeamOn.mac
+  runBeamOn0.mac
+  runBeamOn1.mac
+  runBeamOn2.mac
   generate_coded_aperture.py
   )
 
