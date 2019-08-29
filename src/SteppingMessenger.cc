@@ -18,12 +18,6 @@ SteppingMessenger::SteppingMessenger(SteppingAction* step)
   fcmd1->SetDefaultValue("hits.csv");
   fcmd1->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  fcmd2 = new G4UIcmdWithAString("/dataCollection/setSignalFileName",this);
-  fcmd2->SetParameterName("Enter file name.",true);
-  fcmd2->SetDefaultValue("signal.csv");
-  fcmd2->AvailableForStates(G4State_PreInit, G4State_Idle);
-
-
 }
 
 
@@ -32,7 +26,6 @@ SteppingMessenger::~SteppingMessenger()
 {
   delete fPrimDir;
   delete fcmd1;
-  delete fcmd2;
 }
 
 
@@ -45,10 +38,5 @@ void SteppingMessenger::SetNewValue(G4UIcommand* command,
     fullFilePath += newValue;
     fSteppingAction->SetHitFileName(fullFilePath);
   }    	  
-
-  if(command == fcmd2){
-    fullFilePath += newValue;
-    fSteppingAction->SetSignalFileName(fullFilePath);
-  }
 
 }

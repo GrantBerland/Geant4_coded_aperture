@@ -55,15 +55,13 @@ class SteppingAction : public G4UserSteppingAction
     virtual void UserSteppingAction(const G4Step*);
     void LogParticle(G4ThreeVector, G4ThreeVector, G4double);
 
-    void SetHitFileName(G4String fileName){backgroundFileName = fileName;};
-    void SetSignalFileName(G4String fileName){signalFileName = fileName;};
+    void SetHitFileName(G4String fileName){ fFilename = fileName;};
   
   private:
-    EventAction*  fEventAction;
-    G4LogicalVolume* fScoringVolume;
-    G4String backgroundFileName;
-    G4String signalFileName;
+    EventAction*       fEventAction;
+    G4LogicalVolume*   fScoringVolume;
     SteppingMessenger* fSteppingMessenger;
+    G4String           fFilename;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

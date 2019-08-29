@@ -31,5 +31,6 @@
 /energy/setDistributionType 1
 /energy/setFoldingEnergy 100    # [keV]
 
+/dataCollection/setHitFileName hits1.csv
 
 /run/beamOn 100000

@@ -55,7 +55,8 @@ SteppingAction::SteppingAction(EventAction* eventAction)
 : G4UserSteppingAction(),
   fEventAction(eventAction),
   fScoringVolume(0),
-  fSteppingMessenger(0)
+  fSteppingMessenger(0),
+  fFilename()
 {
 
   fSteppingMessenger = new SteppingMessenger(this);
@@ -118,7 +119,7 @@ void SteppingAction::LogParticle(G4ThreeVector pos, G4ThreeVector init_pos, G4do
     G4AutoLock lock(&myParticleLog);
 
     std::ofstream hitFile_detector;
-    hitFile_detector.open("hits.csv", std::ios_base::app);
+    hitFile_detector.open(fFilename, std::ios_base::app);
 
     hitFile_detector 
     << pos.x()/cm << "," 
