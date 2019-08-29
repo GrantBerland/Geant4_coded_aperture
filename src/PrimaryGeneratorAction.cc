@@ -96,9 +96,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double xDir, yDir, zDir;
   G4double theta, R;
 
-  G4double energy = -fE0 * std::log(1 - G4UniformRand());
+  G4double energy;
   G4double narrowingOffset;
   
+  do{
+    energy = -(fE0-50) * std::log(1 - G4UniformRand()) * keV;
+  } while(energy < 50.*keV);
   
   switch(fDistType)
   {

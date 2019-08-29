@@ -147,7 +147,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   G4double boxXY 	   = 4.*cm;
   G4double boxZ  	   = 5.*mm;
-  G4double aperatureSquare = 0.099*cm;
+  G4double aperatureSquare = 0.1*cm;
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
