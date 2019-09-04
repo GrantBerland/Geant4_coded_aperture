@@ -124,12 +124,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		zDir = 1;
 		break;
 	case 2: // structured circle
-		R = 10.*mm;
+		R = std::sqrt(G4UniformRand() * 30.) * mm;
 		theta = G4UniformRand() * 2. * 3.1415926;
-		x = R * std::cos(theta);
-		y = R * std::sin(theta);
+		x = 10.*mm + R * std::cos(theta);
+		y = 5.*mm - R * std::sin(theta);
 		z = -20.*cm;
-	
+		
 		xDir = yDir = 0;
 		zDir = 1;
 		break;
