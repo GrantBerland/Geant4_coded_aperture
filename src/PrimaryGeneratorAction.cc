@@ -106,10 +106,11 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   switch(fDistType)
   {
 	case 0: // point source, near
-  		x = y = 0.;
+  		x = 10.*mm;
+		y = 5.*mm;
   		z = -20.*cm;
 
-  		narrowingOffset = 0.2;
+  		narrowingOffset = 0.4;
   		xDir = G4UniformRand()*narrowingOffset-narrowingOffset/2.;
   		yDir = G4UniformRand()*narrowingOffset-narrowingOffset/2.;
   		zDir = 1;
