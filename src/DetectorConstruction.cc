@@ -147,15 +147,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   G4double boxXY 	   = 4.*cm;
   G4double boxZ  	   = 1.5*mm;
-  G4double aperatureSquare = 0.1*cm;
+  G4double aperatureSquare = 0.1*cm; 
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
 
 
   G4Box* aperature_base = new G4Box("Aperature-base",
-		   		    boxXY/2.,
-				    boxXY/2.,
+		   		    2.*boxXY/2.,
+				    2.*boxXY/2.,
 				    boxZ/2.);
 
   G4RotationMatrix* rotm = new G4RotationMatrix();   
@@ -176,9 +176,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   int numberOfBoxes = 0;
   while(getline(placementFile, placementXY_str, '\n'))
     { numberOfBoxes++; }
-  
-  // Override of numberOfBoxes to allow the graphics to render
-  //numberOfBoxes = 4; 
   
   placementFile.close();
 
@@ -256,11 +253,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 
 
-  // Assembly method
-  Tm.setX(0.); Tm.setY(0.); Tm.setZ(0.);
-  Tr = G4Transform3D(Rm, Tm); 
-  
-  detectorAssembly->AddPlacedVolume(logic_aperature_base, Tr);
+ 
+    new G4PVPlacement(0,                     //no rotation
+                      G4ThreeVector(),       //at (0,0,0)
+                      logic_aperature_base,  //its logical volume
+                      "Aperature-base",               //its name
+                      logicEnv,                     //its mother  volume
+                      false,                 //no boolean operation
+                      0,                     //copy number
+                      checkOverlaps);        //overlaps checking
 
   
   G4Box* detectorBox = new G4Box("Detector",
@@ -278,17 +279,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   detectorAssembly->AddPlacedVolume(logicDetector, Tr);
 
 
-/*
   G4int pm1[4] = {1, -1, 1, -1};
   G4int pm2[4] = {1, 1, -1, -1};
   G4double dimX = -2.1*cm;
   G4double dimZ = -2.1*cm;
-*/
-  unsigned int numberDetectors = 1;
+  
+  unsigned int numberDetectors = 4;
   for(unsigned int i=0; i<numberDetectors; i++)
   {
-    //Tm.setX(pm1[i]*dimX); Tm.setY(pm2[i]*dimZ); Tm.setZ(0.);
-    Tm.setX(0.); Tm.setY(0.); Tm.setZ(0.);
+    Tm.setX(pm1[i]*dimX); Tm.setY(pm2[i]*dimZ); Tm.setZ(0.);
+    //Tm.setX(0.); Tm.setY(0.); Tm.setZ(0.);
     Tr = G4Transform3D(Rm, Tm); 
 
     // Place assembly in world (or envelope)

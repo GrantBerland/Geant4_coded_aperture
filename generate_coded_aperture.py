@@ -4,10 +4,10 @@ boxSize = 0.1;
 dimX = 4.;
 dimY = 4.;
 
-centeringShift = 0.2;
+centeringShift = -1.6;
 
 # p, must be prime and satisfy L = 4*m + 1, for m in Z
-gridSizeX = 37 
+gridSizeX = 73 
 gridSizeY = gridSizeX; # (square)
 
 def jacobi(a, n):
