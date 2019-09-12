@@ -98,7 +98,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   G4double energy;
   G4double narrowingOffset;
-  
+  G4double detectorSize;
+
   do{
     energy = -(fE0-50) * std::log(1 - G4UniformRand()) * keV;
   } while(energy < 50.*keV);
@@ -117,8 +118,11 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		break;
 
 	case 1: // point source, infinitely far
-		x = G4UniformRand()*40 - 20; x *= mm;
-		y = G4UniformRand()*40 - 20; y *= mm;
+		detectorSize  = 40*2;
+		x = G4UniformRand()*detectorSize - detectorSize/2.; 
+		x *= mm;
+		y = G4UniformRand()*detectorSize - detectorSize/2.;
+		y *= mm;
 		z = -20.*cm;
 
 		xDir = yDir = 0;

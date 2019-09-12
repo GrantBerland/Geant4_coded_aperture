@@ -1,13 +1,13 @@
 import numpy as np
 
-boxSize = 0.1;
+boxSize = 0.25;
 dimX = 4.;
 dimY = 4.;
 
 centeringShift = -1.6;
 
 # p, must be prime and satisfy L = 4*m + 1, for m in Z
-gridSizeX = 73 
+gridSizeX = 29 
 gridSizeY = gridSizeX; # (square)
 
 def jacobi(a, n):
