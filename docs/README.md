@@ -1,5 +1,8 @@
 # MURA Coded Aperture
 
+## 2-D Source location Method
+![loc](./im6.png)
+
 ## 37-element MURA array
 
 ![MURA_array](./im2.png)
