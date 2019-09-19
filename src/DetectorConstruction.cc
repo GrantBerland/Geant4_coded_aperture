@@ -147,15 +147,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   G4double boxXY 	   = 4.*cm;
   G4double boxZ  	   = 1.5*mm;
-  G4double aperatureSquare = 0.1*cm;
+  G4double aperatureSquare = 0.09*cm;
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
 
-
+  // added dimension to "fill the gap" between detectors
   G4Box* aperature_base = new G4Box("Aperature-base",
-		   		    boxXY/2.,
-				    boxXY/2.,
+		   		    (boxXY+2.*mm)/2.,
+				    (boxXY+2.*mm)/2.,
 				    boxZ/2.);
 
   G4RotationMatrix* rotm = new G4RotationMatrix();   
@@ -278,17 +278,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   detectorAssembly->AddPlacedVolume(logicDetector, Tr);
 
 
-/*
   G4int pm1[4] = {1, -1, 1, -1};
   G4int pm2[4] = {1, 1, -1, -1};
   G4double dimX = -2.1*cm;
   G4double dimZ = -2.1*cm;
-*/
-  unsigned int numberDetectors = 1;
+  
+  unsigned int numberDetectors = 4;
   for(unsigned int i=0; i<numberDetectors; i++)
   {
-    //Tm.setX(pm1[i]*dimX); Tm.setY(pm2[i]*dimZ); Tm.setZ(0.);
-    Tm.setX(0.); Tm.setY(0.); Tm.setZ(0.);
+    Tm.setX(pm1[i]*dimX); Tm.setY(pm2[i]*dimZ); Tm.setZ(0.);
     Tr = G4Transform3D(Rm, Tm); 
 
     // Place assembly in world (or envelope)
