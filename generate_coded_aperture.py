@@ -1,13 +1,14 @@
 import numpy as np
 
-boxSize = 0.1;
+boxSize = 0.22;
 dimX = 4.;
 dimY = 4.;
 
-centeringShift = 0.2;
+#centeringShift = 0.2;
+centeringShift = 0.22
 
 # p, must be prime and satisfy L = 4*m + 1, for m in Z
-gridSizeX = 37 
+gridSizeX = 17 
 gridSizeY = gridSizeX; # (square)
 
 def jacobi(a, n):
@@ -28,22 +29,6 @@ def jacobi(a, n):
     else:
         return 0
 
-def quad_res_mod(i, p):
-    '''
-    This function checks if i is a quadratic residual of modulo p
-    '''
-    quad_res_array = [];
-    allResidues = np.sqrt(np.mod(range(0, p), p));
-    
-    for re in allResidues:
-        if int(re) == re:
-            quad_res_array.append(re);
-
-    if i in quad_res_array:
-        return 1;  # is a quadratic residue of mod p
-    else:
-        return -1; # is a quadratic nonresidue of mod p
-
 def MURA_code(i, j, p):
     '''
     This function generates a Modified Uniform Redundent Aperature
@@ -52,7 +37,6 @@ def MURA_code(i, j, p):
         return 0;
     elif j == 0 and i != 0:
         return 1;
-    #elif quad_res_mod(i, p)*quad_res_mod(j, p) == 1:
     elif jacobi(i, p)*jacobi(j, p) == 1: 
         return 1;
     else:
@@ -69,34 +53,26 @@ def MURA_decoding_matrix(i,j, block):
         print("Error in decoding matrix!")
         raise
 
-MURAmatrix = np.zeros([gridSizeX, gridSizeY]);
+MURAmatrix       = np.zeros([gridSizeX, gridSizeY]);
 MURAdecodeMatrix = np.ones([gridSizeX, gridSizeY]);
 with open("coded_aperture_array.txt", 'w') as f, open("decoding_matrix.txt", 'w') as d:
     d.write("i,j,d\n") 
     for i in range(0, gridSizeX):
         for j in range(0, gridSizeY):
            
-            block = MURA_code(i, j, gridSizeX);
+            block  = MURA_code(i, j, gridSizeX);
             decode = MURA_decoding_matrix(i,j, block);
-            
+           
+            # Write to decoding matrix file
             d.write(str(i) + "," + str(j) + "," + str(decode) + "\n")
 
             boxLocArrayX = (i) * boxSize - dimX/2. + centeringShift; 
             boxLocArrayY = (j) * boxSize - dimY/2. + centeringShift;
 
+            # Write to Geant geometry construction txt file
             if block == 1:
-                # Write original and 3 reflections about x, y, and x & y
                 f.write(str(round(boxLocArrayX, 4)) + "," 
                         + str(round(boxLocArrayY, 4)) + "\n")
-                #f.write(str(round(-boxLocArrayX, 4)) + "," 
-                #        + str(round(boxLocArrayY, 4)) + "\n")
-                #f.write(str(round(-boxLocArrayX, 4)) + "," 
-                #        + str(round(-boxLocArrayY, 4)) + "\n")
-                #f.write(str(round(boxLocArrayX, 4)) + "," 
-                #        + str(round(-boxLocArrayY, 4)) + "\n")
             
                 MURAmatrix[i,j] = 1; 
-
-
-
 

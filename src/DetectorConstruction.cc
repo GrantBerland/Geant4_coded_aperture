@@ -147,7 +147,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   G4double boxXY 	   = 4.*cm;
   G4double boxZ  	   = 1.5*mm;
-  G4double aperatureSquare = 0.09*cm;
+  G4double aperatureSquare = 0.2*cm;
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
@@ -177,9 +177,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   while(getline(placementFile, placementXY_str, '\n'))
     { numberOfBoxes++; }
   
-  // Override of numberOfBoxes to allow the graphics to render
-  //numberOfBoxes = 4; 
-  
   placementFile.close();
 
 
@@ -199,7 +196,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   placementY = std::stod(token);
   
-
+  
   G4UnionSolid* coded_boxes = new G4UnionSolid("Combined-boxes",
 		  				coded_box,
 						coded_box,
@@ -209,7 +206,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 							placementY*cm,
 							0.)); 
   
-
   // starts at 1 since logicAp1 uses first line of file 
   for(int i=1; i<numberOfBoxes; i++)
   {
@@ -234,8 +230,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	  			   rotm,
 	  			   G4ThreeVector(placementX*cm,
 					         placementY*cm,
-						 0.)
-				       );
+						 0.));
  
     coded_boxes = swapSolid;
   }
