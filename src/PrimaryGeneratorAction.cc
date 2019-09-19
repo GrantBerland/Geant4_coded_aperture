@@ -98,7 +98,10 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   G4double energy;
   G4double narrowingOffset;
-  
+  G4double detectorSize;
+
+  detectorSize  = 40*2;
+
   do{
     energy = -(fE0-50) * std::log(1 - G4UniformRand()) * keV;
   } while(energy < 50.*keV);
@@ -117,8 +120,10 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		break;
 
 	case 1: // point source, infinitely far
-		x = G4UniformRand()*40 - 20; x *= mm;
-		y = G4UniformRand()*40 - 20; y *= mm;
+		x = G4UniformRand()*detectorSize - detectorSize/2.; 
+		x *= mm;
+		y = G4UniformRand()*detectorSize - detectorSize/2.;
+		y *= mm;
 		z = -20.*cm;
 
 		xDir = yDir = 0;
@@ -133,6 +138,24 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		
 		xDir = yDir = 0;
 		zDir = 1;
+		break;
+
+	case 3: // Rotated plane, infinitely far away
+		theta = -30. * fPI/180.; // pi/18 rad = 10 deg
+		
+		x = G4UniformRand()*detectorSize - detectorSize/2.; 
+		x *= mm;
+
+		x -= 5*cm;
+
+		y = G4UniformRand()*detectorSize - detectorSize/2.;
+		y *= mm;
+		z = -20.*cm;
+
+		xDir = std::cos(theta) + std::sin(theta); 
+		yDir = 0; 
+		zDir = -std::sin(theta) + std::cos(theta);
+
 		break;
 	default:
 		throw std::invalid_argument("Choose distribution type!");
