@@ -151,12 +151,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
+  G4double windowThickness = 0.5*mm;  // 2 windows, each 0.5 mm
 
   // added dimension to "fill the gap" between detectors
   G4Box* aperature_base = new G4Box("Aperature-base",
 		   		    (boxXY+2.*mm)/2.,
 				    (boxXY+2.*mm)/2.,
 				    boxZ/2.);
+  
+  G4Box* window = new G4Box("Window",
+		   	    (boxXY+2.*mm)/2.,
+			    (boxXY+2.*mm)/2.,
+			    windowThickness/2.);
 
   G4RotationMatrix* rotm = new G4RotationMatrix();   
 
@@ -249,9 +255,28 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                         nist->FindOrBuildMaterial("G4_W"), // material
                         "Aperature-base");         //its name
 
+  
+  G4LogicalVolume* logic_window =
+    new G4LogicalVolume(window,            //its solid
+                        nist->FindOrBuildMaterial("G4_Be"), // material
+                        "Window");         //its name
 
 
   // Assembly method
+  
+  // Window 1 (in front of aperture)
+  Tm.setX(0.); Tm.setY(0.); Tm.setZ(-(windowThickness+boxZ)/2.);
+  Tr = G4Transform3D(Rm, Tm); 
+  
+  detectorAssembly->AddPlacedVolume(logic_window, Tr);
+  
+  // Window 2 (between aperture and detector)
+  Tm.setX(0.); Tm.setY(0.); Tm.setZ((windowThickness+boxZ)/2.);
+  Tr = G4Transform3D(Rm, Tm); 
+  
+  detectorAssembly->AddPlacedVolume(logic_window, Tr);
+ 
+  // Coded aperture unioned subtraction solid
   Tm.setX(0.); Tm.setY(0.); Tm.setZ(0.);
   Tr = G4Transform3D(Rm, Tm); 
   
