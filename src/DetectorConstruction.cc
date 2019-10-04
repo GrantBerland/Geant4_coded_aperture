@@ -152,6 +152,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
   G4double windowThickness = 0.5*mm;  // 2 windows, each 0.5 mm
+  G4double shieldingBoxThickness = 1.*cm;
 
   // added dimension to "fill the gap" between detectors
   G4Box* aperature_base = new G4Box("Aperature-base",
@@ -164,6 +165,19 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 			    (boxXY+2.*mm)/2.,
 			    windowThickness/2.);
 
+  
+  G4Box* outerShieldingBox = new G4Box("Outer-shielding",
+		   	    (boxXY*2.+shieldingBoxThickness)/2.,
+			    (boxXY*2.+shieldingBoxThickness)/2.,
+			    5.*cm/2.);
+  
+  
+  G4Box* innerSubtractionBox = new G4Box("Inner-sub",
+		   	    (boxXY*2.)/2.,
+			    (boxXY*2.)/2.,
+			    (5.*cm + 1.*cm)/2.);
+  
+  
   G4RotationMatrix* rotm = new G4RotationMatrix();   
 
   G4Box* coded_box = new G4Box("Coded-box",
@@ -243,13 +257,22 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   placementFile.close();
 
+  // Subtraction solids
   G4SubtractionSolid* logicAp1 = 
 	    new G4SubtractionSolid("Aperature-base",
 	  			   aperature_base,
 	  			   coded_boxes,
 	  			   rotm,
 	  			   G4ThreeVector(0.,0.,0.));
+  
+  G4SubtractionSolid* shieldingBox = 
+	    new G4SubtractionSolid("Shielding-Box",
+	  			   outerShieldingBox,
+	  			   innerSubtractionBox,
+	  			   rotm,
+	  			   G4ThreeVector(0.,0.,0.));
 
+  // Logical volumes
   G4LogicalVolume* logic_aperature_base =
     new G4LogicalVolume(logicAp1,            //its solid
                         nist->FindOrBuildMaterial("G4_W"), // material
@@ -261,6 +284,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                         nist->FindOrBuildMaterial("G4_Be"), // material
                         "Window");         //its name
 
+  
+  G4LogicalVolume* logic_shieldingBox =
+    new G4LogicalVolume(shieldingBox,            //its solid
+                        nist->FindOrBuildMaterial("G4_W"), // material
+                        "Shielding-Box");         //its name
 
   // Assembly method
   
@@ -281,7 +309,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   Tr = G4Transform3D(Rm, Tm); 
   
   detectorAssembly->AddPlacedVolume(logic_aperature_base, Tr);
-
+  
   
   G4Box* detectorBox = new G4Box("Detector",
 		  		    0.5*detectorXY,
@@ -313,7 +341,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     detectorAssembly->MakeImprint(logicEnv, Tr);
   }
   
-  
+ 
+  // Outer shielding box placement
+  new G4PVPlacement(0,                     //no rotation
+                      G4ThreeVector(0.,0.,2*cm), 
+		      logic_shieldingBox,            //its logical volume
+                      "Shielding-Box",               //its name
+                      logicEnv,                     //its mother  volume
+                      false,                 //no boolean operation
+                      0,                     //copy number
+                      checkOverlaps);        //overlaps checking
+
+
   // always return the physical World
   return physWorld;
 }

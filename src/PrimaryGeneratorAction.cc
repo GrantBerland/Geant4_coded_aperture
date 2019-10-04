@@ -55,7 +55,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fPI(3.14159265358979323846),
   fDeg2Rad(3.14159265358979323846/180.),
   lossConeAngleDeg(64.),
-  photonPhiLimitDeg(25.),  
+  photonPhiLimitDeg(40.),  
   fDistType(0),
   fE0(100.),
   electronParticle(0),

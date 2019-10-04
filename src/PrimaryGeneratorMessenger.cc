@@ -25,6 +25,10 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* pri
   fDcmd->SetDefaultValue(100.);
   fDcmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
+  fD2cmd = new G4UIcmdWithADouble("/energy/setEventAngle",this);
+  fD2cmd->SetParameterName("Set event angular size within (0, 45) degrees",true);
+  fD2cmd->SetDefaultValue(45);
+  fD2cmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 
 PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger()
@@ -32,6 +36,7 @@ PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger()
   delete fPrimDir;
   delete fcmd;
   delete fDcmd;
+  delete fD2cmd;
 }
 
 
@@ -45,6 +50,10 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command,
 
   if(command == fDcmd){
     fPrimaryGenerator->SetFoldingEnergy(std::stod(newValue));
+  }
+  
+  if(command == fD2cmd){
+    fPrimaryGenerator->SetEventAngle(std::stod(newValue));
   }
 
 }
