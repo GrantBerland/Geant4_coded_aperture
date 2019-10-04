@@ -66,6 +66,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4ParticleGun*  fParticleGun; // pointer a to G4 gun class
     
     G4double fPI;
+    G4double fDeg2Rad;
     G4double lossConeAngleDeg;
     G4double photonPhiLimitDeg;
 
