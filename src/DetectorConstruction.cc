@@ -167,14 +167,14 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   
   G4Box* outerShieldingBox = new G4Box("Outer-shielding",
-		   	    (boxXY*2.+shieldingBoxThickness)/2.,
-			    (boxXY*2.+shieldingBoxThickness)/2.,
+		   	    (boxXY*2.1+shieldingBoxThickness)/2.,
+			    (boxXY*2.1+shieldingBoxThickness)/2.,
 			    5.*cm/2.);
   
   
   G4Box* innerSubtractionBox = new G4Box("Inner-sub",
-		   	    (boxXY*2.)/2.,
-			    (boxXY*2.)/2.,
+		   	    (boxXY*2.1)/2.,
+			    (boxXY*2.1)/2.,
 			    (5.*cm + 1.*cm)/2.);
   
   
