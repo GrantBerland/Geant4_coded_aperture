@@ -179,10 +179,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   		yDir = G4UniformRand()*2. - 1.; // |y| ~ U[-1, 1]
 
 		// |z| ~ U[0, phi_limit]
-		/*
-		zDir = std::cos(G4UniformRand()* 
-				(photonPhiLimitDeg * fDeg2Rad));
-		*/
 		zDir = std::sqrt(xDir * xDir + yDir * yDir)/
 		std::tan(G4UniformRand()*photonPhiLimitDeg * fDeg2Rad);
 		break;
