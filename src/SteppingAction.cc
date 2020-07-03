@@ -91,8 +91,8 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   // character 12, where X is the impression copy 
   // (detector assembly) [1,2,3] and Y is the detector number 
   // within each assembly [2,4,6,8]
-  check1 = (std::string::npos != volName.find("Detector", 12));
-  check2 = (std::string::npos != nextVolName.find("Detector", 12));
+  check1 = (std::string::npos != volName.find("P", 12));
+  check2 = (std::string::npos != nextVolName.find("P", 12));
   
   
   if(check1 && check2) // particle is in detector
@@ -107,28 +107,44 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     const G4ThreeVector vtx = track->GetVertexPosition();
 
     // Redlen lower energy detection threshold
-    if(ene > 50.*keV) LogParticle(pos, vtx, ene); 
+    if(ene > 20.*keV) LogParticle(vtx, ene, nextVolName); 
   }    
 
 }
 
-void SteppingAction::LogParticle(G4ThreeVector pos, G4ThreeVector init_pos, G4double ene)
+void SteppingAction::LogParticle(G4ThreeVector init_pos, G4double ene, G4String volName)
 {
     // locks program so that multiple threads cannot write to file
     // at once, unlocks when current scope (i.e. this method) is left
     G4AutoLock lock(&myParticleLog);
 
+
+    G4int loc1  = volName.find('P', 10);
+    G4int loc2  = volName.find('_', loc1);
+    G4int loc2p = volName.find('i', loc1);
+    G4int loc3  = volName.find('j', loc2);
+    G4int loc4  = volName.find('_', loc3);
+
+
+    // Find detector and pixel number from volume name string
+    G4String avPlacementNum = volName.substr(3, volName.find('_',3)-3);
+    G4String detNumber   = volName.substr(10, volName.find('_', 10)-10);
+    G4String iNum        = volName.substr(loc2p+1, loc3-(loc2p+2));
+    G4String jNum        = volName.substr(loc3+1, loc4-(loc3+1));
+
+
     std::ofstream hitFile_detector;
     hitFile_detector.open(fFilename, std::ios_base::app);
 
     hitFile_detector 
-    << pos.x()/cm << "," 
-    << pos.y()/cm << "," 
-    << pos.z()/cm << "," 
+    << ene/keV
+    << detNumber << "," 
+    << iNum << "," 
+    << jNum << "," 
     << init_pos.x()/cm << "," 
     << init_pos.y()/cm << "," 
     << init_pos.z()/cm << ","
-    << ene/keV << "\n";
+    << "\n";
 
     hitFile_detector.close();
 }
