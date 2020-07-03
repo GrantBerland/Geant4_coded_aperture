@@ -71,7 +71,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double env_sizeXY = 30*cm, env_sizeZ = 30*cm;
 
     // Material: Vacuum
-    //TODO: check pressures, environment for Van Allen belt altitudes
   G4Material* vacuum_material = new G4Material("Vacuum",
               1.0 , 1.01*g/mole, 1.0E-25*g/cm3,
               kStateGas, 2.73*kelvin, 3.0E-18*pascal );
@@ -147,12 +146,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   G4double boxXY 	   = 4.*cm;
   G4double boxZ  	   = 1.5*mm;
-  G4double aperatureSquare = 0.22*cm;
+  // FIX ME
+  G4double aperatureSquare = 0.2*cm;
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
   G4double windowThickness = 0.5*mm;  // 2 windows, each 0.5 mm
   G4double shieldingBoxThickness = 1.*cm;
+
+  G4double pixelSize      = 2.5*mm;
 
   // added dimension to "fill the gap" between detectors
   G4Box* aperature_base = new G4Box("Aperature-base",
@@ -177,7 +179,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 			    (boxXY*2.1)/2.,
 			    (5.*cm + 1.*cm)/2.);
   
-  
+ 
+  G4double collimatorHeight = 17.*mm;
+  G4VSolid* collimatorBlock = new G4Box("Collimator",
+                                   0.5*collimatorHeight,
+                                   0.5*1.*mm,
+                                   0.5*2*detectorXY);
+
   G4RotationMatrix* rotm = new G4RotationMatrix();   
 
   G4Box* coded_box = new G4Box("Coded-box",
@@ -290,6 +298,24 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                         nist->FindOrBuildMaterial("G4_W"), // material
                         "Shielding-Box");         //its name
 
+    
+  G4RotationMatrix* rotmCol = new G4RotationMatrix();
+  rotmCol->rotateX(90.*deg);
+
+  G4VSolid* collimatorUnion = new G4UnionSolid("Collimator",
+                                   collimatorBlock,
+                                   collimatorBlock,
+                                   rotmCol,
+                                   G4ThreeVector());
+  rotmCol->rotateX(-90.*deg);
+  
+  G4LogicalVolume* logicCollimator = new G4LogicalVolume(collimatorUnion,
+                                      nist->FindOrBuildMaterial("G4_W"),
+                                      "Collimator");
+  
+  
+  
+  
   // Assembly method
   
   // Window 1 (in front of aperture)
@@ -310,30 +336,69 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   detectorAssembly->AddPlacedVolume(logic_aperature_base, Tr);
   
-  
-  G4Box* detectorBox = new G4Box("Detector",
-		  		    0.5*detectorXY,
-				    0.5*detectorXY,
-				    0.5*detectorZ);
 
-  G4LogicalVolume* logicDetector = new G4LogicalVolume(detectorBox,
-							CZT,
-							"Detector");
+  G4VSolid* pixelBlock = new G4Box("Pixel",
+                                0.5*pixelSize,
+                                0.5*detectorZ,
+                                0.5*pixelSize);
 
-  Tm.setX(0.); Tm.setY(0.); Tm.setZ(ap_det_spacing);
-  Tr = G4Transform3D(Rm, Tm); 
-  
-  detectorAssembly->AddPlacedVolume(logicDetector, Tr);
+  G4AssemblyVolume* pixelAssembly = new G4AssemblyVolume();
 
+  G4RotationMatrix RmT;
+  G4ThreeVector    TmT;
+  G4Transform3D    TrT;
+
+  G4String pixelName;
 
   G4int pm1[4] = {1, -1, 1, -1};
   G4int pm2[4] = {1, 1, -1, -1};
   G4double dimX = -2.1*cm;
   G4double dimZ = -2.1*cm;
+
+  G4LogicalVolume* logicPixel;
+
+  // Create pixelated detector
+  G4int nameCounter = 0;
+  G4int numPixels = 16;
+  for(G4int i=0; i<numPixels; i++){
+    for(G4int j=0; j<numPixels; j++){
+
+        pixelName = "P";
+        pixelName += std::to_string(nameCounter);
+        pixelName += "_i";
+        pixelName += std::to_string(i);
+        pixelName += "_j";
+        pixelName += std::to_string(j);
+        nameCounter++;
+
+        logicPixel = new G4LogicalVolume(pixelBlock,
+                                   CZT,
+                                   pixelName);
+
+        TmT.setX(pixelSize*(i-numPixels));
+        TmT.setZ(pixelSize*(j-numPixels));
+        //TmT.setY(-1.25*cm+0.1*mm);
+	TmT.setY(0.);
+
+        TrT = G4Transform3D(RmT, TmT);
+
+        pixelAssembly->AddPlacedVolume(logicPixel, TrT);
+    }
+  }
+
+
+  Tm.setX(2.1*cm); Tm.setY(-2.1*cm); Tm.setZ(2.25*cm);
+  Rm.rotateX(90.*deg);
+  Tr = G4Transform3D(Rm, Tm); 
+  Rm.rotateX(-90.*deg);
+	  
+  // Insert pixel assembly on top of detector
+  detectorAssembly->AddPlacedAssembly(pixelAssembly, Tr);	  
   
   unsigned int numberDetectors = 4;
   for(unsigned int i=0; i<numberDetectors; i++)
   {
+  	  
     Tm.setX(pm1[i]*dimX); Tm.setY(pm2[i]*dimZ); Tm.setZ(0.);
     Tr = G4Transform3D(Rm, Tm); 
 
@@ -352,6 +417,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                       0,                     //copy number
                       checkOverlaps);        //overlaps checking
 
+  // Collimator
+  rotmCol->rotateY(90.*deg);
+  new G4PVPlacement(rotmCol,                     //no rotation
+                      G4ThreeVector(0.,0.,1.*cm), 
+		      logicCollimator,            //its logical volume
+                      "Collimator",               //its name
+                      logicEnv,                     //its mother  volume
+                      false,                 //no boolean operation
+                      0,                     //copy number
+                      checkOverlaps);        //overlaps checking
 
   // always return the physical World
   return physWorld;
