@@ -68,13 +68,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   // Envelope parameters
   //
-  G4double env_sizeXY = 30*cm, env_sizeZ = 30*cm;
+  G4double env_sizeXY = 20*cm, env_sizeZ = 70*cm;
 
     // Material: Vacuum
   G4Material* vacuum_material = new G4Material("Vacuum",
               1.0 , 1.01*g/mole, 1.0E-25*g/cm3,
               kStateGas, 2.73*kelvin, 3.0E-18*pascal );
-  
+
+  G4Material* air_material = new G4Material("Air",
+              7.0 , 28.97*g/mole, 0.001004*g/cm3,
+              kStateGas, 290*kelvin, 82000.*pascal );
+
+
   // CZT for detector
   G4Element* Cd = new G4Element("Cadmium","Cd",48., 112.41*g/mole);
   G4Element* Zn = new G4Element("Zinc","Zn", 30., 65.38*g/mole);
@@ -148,6 +153,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double boxZ  	   = 1.5*mm;
   // FIX ME
   G4double aperatureSquare = 0.2*cm;
+  //G4double aperatureSquare = 0.22*cm;
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
@@ -428,6 +434,122 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                       0,                     //copy number
                       checkOverlaps);        //overlaps checking
 
+
+
+  // Linepair test apparatus
+  /*
+  G4Box* collimatorSourceBlock = new G4Box("Source-box",
+		  			3.*cm/2.,
+					3.*cm/2.,
+					3.*cm/2.);
+
+  G4Box* collimatorSubBlock = new G4Box("Source-sub-box",
+		  			2.*cm/2.,
+					2.*cm/2.,
+					2.*cm/2.);
+
+  G4SubtractionSolid* sourceCollimatorBlock = new G4SubtractionSolid(
+		  			"Source-box",
+					collimatorSourceBlock,
+					collimatorSubBlock,
+					new G4RotationMatrix(),
+					G4ThreeVector(0,0,1.*cm));
+
+
+  G4LogicalVolume* logic_collimatorBlock = new G4LogicalVolume(
+		  			sourceCollimatorBlock,
+					nist->FindOrBuildMaterial("G4_W"),
+					"Source-box");
+
+
+  new G4PVPlacement(0,                     	  //no rotation
+                      G4ThreeVector(0.,0.,-50.5*cm), 
+		      logic_collimatorBlock,      //its logical volume
+                      "Source-box",               //its name
+                      logicEnv,                   //its mother  volume
+                      false,                      //no boolean operation
+                      0,                          //copy number
+                      checkOverlaps);        	  //overlaps checking
+
+  */
+
+  // Linepair test has equal line thickness with interline distance
+  G4double line_thickness = 0.5*mm;
+  G4double LP_spacing     = 2.*line_thickness;
+
+  G4Box* LP_box = new G4Box("LP-box",
+		  	    5.*cm/2.,
+			    5.*cm/2.,
+			    1.*cm/2.);
+
+  
+  G4Box* LP_sub_line = new G4Box("LP-line",
+		  		2.*cm/2.,
+				line_thickness/2.,
+				2.*cm/2.);
+  
+
+
+  G4UnionSolid* LP_lines = new G4UnionSolid("LP-lines",
+		  			LP_sub_line,
+					LP_sub_line,
+					new G4RotationMatrix(),
+					G4ThreeVector(0,LP_spacing,0));  
+  
+  LP_lines = new G4UnionSolid("LP-lines",
+		  		LP_lines,
+				LP_sub_line,
+				new G4RotationMatrix(),
+				G4ThreeVector(0,-LP_spacing,0));
+  
+  LP_lines = new G4UnionSolid("LP-lines",
+		  		LP_lines,
+				LP_sub_line,
+				new G4RotationMatrix(),
+				G4ThreeVector(0,-2*LP_spacing,0));
+
+  LP_lines = new G4UnionSolid("LP-lines",
+		  		LP_lines,
+				LP_sub_line,
+				new G4RotationMatrix(),
+				G4ThreeVector(0,2*LP_spacing,0));
+  
+  LP_lines = new G4UnionSolid("LP-lines",
+		  		LP_lines,
+				LP_sub_line,
+				new G4RotationMatrix(),
+				G4ThreeVector(0,3*LP_spacing,0));
+
+  LP_lines = new G4UnionSolid("LP-lines",
+		  		LP_lines,
+				LP_sub_line,
+				new G4RotationMatrix(),
+				G4ThreeVector(0,-3*LP_spacing,0));
+  
+  G4SubtractionSolid* LP_box_line = new G4SubtractionSolid(
+		  			"LP-box",
+					LP_box,
+					LP_lines,
+					new G4RotationMatrix(),
+					G4ThreeVector(0,0,0));
+
+
+  
+  G4LogicalVolume* logic_LP_box = new G4LogicalVolume(LP_box_line,
+		  			nist->FindOrBuildMaterial("G4_W"),
+					"LP-box"); 
+  
+ 
+  new G4PVPlacement(0,                     	  //no rotation
+                      G4ThreeVector(0.,0.,-23.*cm), 
+		      logic_LP_box,              //its logical volume
+                      "LP-box",               //its name
+                      logicEnv,                   //its mother  volume
+                      false,                      //no boolean operation
+                      0,                          //copy number
+                      checkOverlaps);        	  //overlaps checking
+  
+  
   // always return the physical World
   return physWorld;
 }

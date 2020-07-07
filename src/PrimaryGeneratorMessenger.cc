@@ -5,6 +5,7 @@
 #include "PrimaryGeneratorAction.hh"
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4UIcmdWithADouble.hh"
+#include "G4UIcmdWithAString.hh"
 #include "G4UIdirectory.hh"
 
 
@@ -29,6 +30,19 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* pri
   fD2cmd->SetParameterName("Set event angular size within (0, 45) degrees",true);
   fD2cmd->SetDefaultValue(45);
   fD2cmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  // Sets fPhotonFilename
+  fScmd=new G4UIcmdWithAString("/energy/setPhotonFileName",this);
+  fScmd->SetParameterName("Enter file name to draw photons from.",true);
+  fScmd->SetDefaultValue("test1_photons.csv");
+  fScmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  
+  // Sets fRadioSourceType
+  fScmd2=new G4UIcmdWithAnInteger("/energy/setRadioSource",this);
+  fScmd2->SetParameterName("Enter isotope name.",true);
+  fScmd2->SetDefaultValue(0);
+  fScmd2->AvailableForStates(G4State_PreInit, G4State_Idle);
+
 }
 
 PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger()
@@ -37,6 +51,8 @@ PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger()
   delete fcmd;
   delete fDcmd;
   delete fD2cmd;
+  delete fScmd;
+  delete fScmd2;
 }
 
 
@@ -54,6 +70,16 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command,
   
   if(command == fD2cmd){
     fPrimaryGenerator->SetEventAngle(std::stod(newValue));
+  }
+
+  if(command == fScmd){
+    G4String path = "../analysis/photonFiles/";
+    path += newValue;
+    fPrimaryGenerator->SetPhotonFilename(path);
+  }
+
+  if(command == fScmd2){
+    fPrimaryGenerator->SetRadioSourceType(std::stoi(newValue));
   }
 
 }

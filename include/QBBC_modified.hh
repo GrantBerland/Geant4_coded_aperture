@@ -49,7 +49,9 @@ public:
 
   virtual ~QBBC_modified();
 
+  virtual void ConstructParticle();
   virtual void SetCuts();
+
 
 private:
 

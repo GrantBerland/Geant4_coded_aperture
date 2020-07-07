@@ -43,11 +43,14 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
+#include "G4IonTable.hh"
 
 #include <fstream>
 #include <stdexcept>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+unsigned int PrimaryGeneratorAction::fPhotonFileLineCounter = 1;
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),
@@ -60,6 +63,8 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fE0(100.),
   electronParticle(0),
   photonParticle(0),
+  fPhotonFilename(),
+  fRadioSourceType(0),
   fPrimaryMessenger()
 {
 
@@ -97,16 +102,20 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double xDir, yDir, zDir;
   G4double theta, phi, R;
 
+  G4int Z, A;
+  G4double ionCharge;
+
   G4double energy;
   G4double narrowingOffset;
   G4double detectorSize;
 
+
   detectorSize  = 40*2;  // mm , units assigned in switch-case
 
-  do{
-    energy = -(fE0-50) * std::log(1 - G4UniformRand()) * keV;
-  } while(energy < 50.*keV);
-  
+  energy = -((fE0-50) * std::log(1 - G4UniformRand())+50) * keV;
+
+
+
   switch(fDistType)
   {
 	case 0: // point source, near
@@ -181,6 +190,83 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		// |z| ~ U[0, phi_limit]
 		zDir = std::sqrt(xDir * xDir + yDir * yDir)/
 		std::tan(G4UniformRand()*photonPhiLimitDeg * fDeg2Rad);
+		break;
+	
+	case 5: // Read photons from files
+	{
+  		G4String line, word;
+  		std::ifstream photonFile;
+  	
+		photonFile.open(fPhotonFilename, std::ios_base::in);
+
+  		for(unsigned int i=0; i<fPhotonFileLineCounter; i++)
+  		{  getline(photonFile, line);  }
+
+		std::stringstream s_ptr(line);
+ 
+  		getline(s_ptr, word, ',');
+  		x = std::stod(word) * cm;
+
+  		getline(s_ptr, word, ',');
+  		y = std::stod(word) * cm;
+  
+  		getline(s_ptr, word, ',');
+  		z = std::stod(word) * cm;
+  
+  		getline(s_ptr, word, ',');
+  		xDir = std::stod(word);
+  
+  		getline(s_ptr, word, ',');
+  		yDir = std::stod(word);
+  
+  		getline(s_ptr, word, '\n');
+  		zDir = std::stod(word);
+
+  		photonFile.close();
+
+  		fPhotonFileLineCounter++;
+
+  		// Power law sampling for photon energy
+  		// f(E) = C E^-k , where k > 0 and E > E_min; 
+  		//
+  		// Inverse CDF sampling:
+  		// E = E_min * (1 - U[0,1])^(-1/(k-1))
+  		energy = 50.*std::pow((1-G4UniformRand()),-1/(fE0-1))*keV;
+
+		break;
+	}
+	
+	case 6: // Linepair test
+
+		x = 0.;
+		y = 0.;
+		z = -25.*cm;
+
+		xDir = 0;
+		yDir = 0;
+		zDir = 1;
+
+      		{
+		  G4String isoName;
+		  switch(fRadioSourceType)
+		  {
+		    case 0: isoName = "Co-57";  Z = 27; A = 57;  break;
+		    case 1: isoName = "Ba-133"; Z = 56; A = 133; break;
+		    case 2: isoName = "Eu-152"; Z = 63; A = 152; break;
+		    case 3: isoName = "Cs-137"; Z = 55; A = 137; break;
+		    default: 
+	  throw std::invalid_argument("Enter a radioactive source type!");
+		  }
+        
+		  ionCharge   = 0.*eplus;
+        	  energy = 0.*keV;
+
+        	  G4ParticleDefinition* ion
+             	    = G4IonTable::GetIonTable()->GetIon(Z,A,energy);
+        	  fParticleGun->SetParticleDefinition(ion);
+        	  fParticleGun->SetParticleCharge(ionCharge);
+      		}
+
 		break;
 
 	default:

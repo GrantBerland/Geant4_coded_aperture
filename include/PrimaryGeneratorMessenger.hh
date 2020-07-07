@@ -11,6 +11,7 @@ class PrimaryGeneratorAction;
 
 class G4UIdirectory;
 class G4UIcmdWithADouble;
+class G4UIcmdWithAString;
 class G4UIcmdWithAnInteger;
 
 class PrimaryGeneratorMessenger : public G4UImessenger
@@ -28,6 +29,8 @@ private:
   G4UIcmdWithAnInteger*      fcmd;
   G4UIcmdWithADouble*        fDcmd;
   G4UIcmdWithADouble*        fD2cmd;
+  G4UIcmdWithAString*        fScmd;
+  G4UIcmdWithAnInteger*      fScmd2;
 
 };
 

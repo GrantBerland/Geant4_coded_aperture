@@ -8,3 +8,7 @@
 *.cc.o
 /build/*
 /results
+analysis/.ipynb_checkpoints
+analysis/__pycache__
+analysis/photonFiles
+analysis/originalImages

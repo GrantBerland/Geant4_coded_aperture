@@ -1,0 +1,43 @@
+# Macro file for example B1
+# 
+# Can be run in batch, without graphic
+# or interactively: Idle> /control/execute run1.mac
+#
+# Change the default number of workers (in multi-threading mode) 
+#/run/numberOfWorkers 4
+#
+# Initialize kernel
+
+
+# Set low energy EM processes, including fluorescence
+/process/em/fluo false 
+/process/em/auger false
+/process/em/augerCascade false
+/process/em/pixe false
+/process/em/deexcitationIgnoreCut false
+
+
+#/cuts/setMaxCutEnergy 50 eV
+/run/initialize
+
+
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+# 0 = near point source
+# 1 = infinitely far away point source
+/energy/setDistributionType 6 
+
+# 0 = Co-57
+# 1 = Ba-133
+# 2 = Eu-152
+# 3 = Cs-137
+/energy/setRadioSource 0
+
+/energy/setFoldingEnergy 0    # [keV]
+
+/dataCollection/setHitFileName hit_decayTest.csv
+
+/run/beamOn 1000

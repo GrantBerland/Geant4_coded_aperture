@@ -54,6 +54,9 @@
 #include "G4EmExtraPhysics.hh"
 #include "G4StoppingPhysics.hh"
 
+#include "G4DecayPhysics.hh"
+#include "G4RadioactiveDecayPhysics.hh"
+
 #include "G4DataQuestionaire.hh"
 #include "G4HadronInelasticQBBC.hh"
 #include "G4HadronElasticPhysics.hh"
@@ -62,6 +65,15 @@
 #include "G4ChargeExchangePhysics.hh"
 #include "G4IonPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
+
+// Particles
+#include "G4BosonConstructor.hh"
+#include "G4LeptonConstructor.hh"
+#include "G4MesonConstructor.hh"
+#include "G4BosonConstructor.hh"
+#include "G4BaryonConstructor.hh"
+#include "G4IonConstructor.hh"
+#include "G4ShortLivedConstructor.hh"
 
 QBBC_modified::QBBC_modified( G4int ver, const G4String&)
 {
@@ -80,6 +92,8 @@ QBBC_modified::QBBC_modified( G4int ver, const G4String&)
 
   // Decays
   RegisterPhysics( new G4DecayPhysics(ver) );
+  RegisterPhysics(new G4RadioactiveDecayPhysics(ver));
+
 
    // Hadron Physics
   RegisterPhysics( new G4HadronElasticPhysicsXS(ver) );
@@ -97,8 +111,35 @@ QBBC_modified::QBBC_modified( G4int ver, const G4String&)
 QBBC_modified::~QBBC_modified() 
 {}
 
+
+void QBBC_modified::ConstructParticle()
+{
+  G4BosonConstructor  pBosonConstructor;
+  pBosonConstructor.ConstructParticle();
+
+  G4LeptonConstructor pLeptonConstructor;
+  pLeptonConstructor.ConstructParticle();
+
+  G4MesonConstructor pMesonConstructor;
+  pMesonConstructor.ConstructParticle();
+
+  G4BaryonConstructor pBaryonConstructor;
+  pBaryonConstructor.ConstructParticle();
+
+  G4IonConstructor pIonConstructor;
+  pIonConstructor.ConstructParticle();
+
+  G4ShortLivedConstructor pShortLivedConstructor;
+  pShortLivedConstructor.ConstructParticle();
+}
+
 void QBBC_modified::SetCuts()
 {
-  SetCutsWithDefault();   
+
+  SetCutValue(0.25*mm, "proton");
+  SetCutValue(0.25*mm, "e-");
+  SetCutValue(0.25*mm, "e+");
+  SetCutValue(0.25*mm, "gamma");
+
 }
 

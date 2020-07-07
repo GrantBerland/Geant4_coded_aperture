@@ -97,17 +97,21 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   
   if(check1 && check2) // particle is in detector
   {
-    // Position of hit
-    const G4ThreeVector pos = aStep->GetPostStepPoint()->GetPosition();
-    
-    const G4double ene = aStep->GetPostStepPoint()->GetKineticEnergy();
-    
-    // Get generated particle position, energy, and momentum direction
-    //const G4ThreeVector vtx = track->GetVertexPosition();
-    const G4ThreeVector vtx = track->GetVertexPosition();
+    G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName(); 
 
-    // Redlen lower energy detection threshold
-    if(ene > 20.*keV) LogParticle(vtx, ene, nextVolName); 
+    if(particleName == "gamma")
+    {
+      // Position of hit
+      const G4ThreeVector pos = aStep->GetPostStepPoint()->GetPosition();
+    
+      const G4double ene = aStep->GetPostStepPoint()->GetKineticEnergy();
+    
+      // Get generated particle position, energy, and momentum direction
+      const G4ThreeVector vtx = track->GetVertexPosition();
+
+      // Redlen lower energy detection threshold
+      if(ene > 50.*keV) LogParticle(vtx, ene, nextVolName); 
+    }
   }    
 
 }
@@ -137,13 +141,13 @@ void SteppingAction::LogParticle(G4ThreeVector init_pos, G4double ene, G4String 
     hitFile_detector.open(fFilename, std::ios_base::app);
 
     hitFile_detector 
-    << ene/keV
+    << ene/keV << ","
     << detNumber << "," 
     << iNum << "," 
     << jNum << "," 
     << init_pos.x()/cm << "," 
     << init_pos.y()/cm << "," 
-    << init_pos.z()/cm << ","
+    << init_pos.z()/cm 
     << "\n";
 
     hitFile_detector.close();
