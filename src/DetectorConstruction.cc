@@ -68,7 +68,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   // Envelope parameters
   //
-  G4double env_sizeXY = 20*cm, env_sizeZ = 70*cm;
+  G4double env_sizeXY = 20*cm, env_sizeZ = 100*cm;
 
     // Material: Vacuum
   G4Material* vacuum_material = new G4Material("Vacuum",
@@ -173,17 +173,17 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 			    (boxXY+2.*mm)/2.,
 			    windowThickness/2.);
 
-  
+  G4double boxDepth = 4.*cm; 
   G4Box* outerShieldingBox = new G4Box("Outer-shielding",
 		   	    (boxXY*2.1+shieldingBoxThickness)/2.,
 			    (boxXY*2.1+shieldingBoxThickness)/2.,
-			    5.*cm/2.);
+			    boxDepth/2.);
   
   
   G4Box* innerSubtractionBox = new G4Box("Inner-sub",
 		   	    (boxXY*2.1)/2.,
 			    (boxXY*2.1)/2.,
-			    (5.*cm + 1.*cm)/2.);
+			    (boxDepth + 1.*cm)/2.);
   
  
   G4double collimatorHeight = 17.*mm;
@@ -401,7 +401,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   // Insert pixel assembly on top of detector
   detectorAssembly->AddPlacedAssembly(pixelAssembly, Tr);	  
   
-  unsigned int numberDetectors = 4;
+  unsigned int numberDetectors = 1;
   for(unsigned int i=0; i<numberDetectors; i++)
   {
   	  
@@ -539,9 +539,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		  			nist->FindOrBuildMaterial("G4_W"),
 					"LP-box"); 
   
- 
-  new G4PVPlacement(0,                     	  //no rotation
-                      G4ThreeVector(0.,0.,-23.*cm), 
+
+  G4RotationMatrix* LP_box_rotm = new G4RotationMatrix();
+  LP_box_rotm->rotateZ(45.*deg);
+  new G4PVPlacement(LP_box_rotm,            	  //no rotation
+                      G4ThreeVector(0.,0.,-48.*cm), 
 		      logic_LP_box,              //its logical volume
                       "LP-box",               //its name
                       logicEnv,                   //its mother  volume
