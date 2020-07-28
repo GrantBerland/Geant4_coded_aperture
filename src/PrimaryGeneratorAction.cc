@@ -244,7 +244,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 		xDir = 0;
 		yDir = 0;
-		zDir = 1;
+		zDir = 0;
 
       		{
 		  G4String isoName;

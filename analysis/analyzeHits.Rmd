@@ -1,0 +1,177 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.5.2
+  kernelspec:
+    display_name: Python [conda env:py3] *
+    language: python
+    name: conda-env-py3-py
+---
+
+```{python}
+# %matplotlib inline
+# %autosave 0
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+from scipy.signal import fftconvolve
+
+from util_fncs import makeMURA
+```
+
+# Source radioactivity as of 6/7/2020
+
+A$_{Ba-133}$ = $3.27 \times 10^5$ dps
+
+A$_{Cs-137}$ = $3.488 \times 10^5$ dps
+
+A$_{Co-57}$  = $1.125 \times 10^5$ dps
+
+A$_{Eu-152}$ = $3.26 \times 10^4$ dps
+
+
+# Linepair Test Notes
+
+Spatial frequency for the linepair test is defined as
+
+$$\frac{1}{(2\times \text{line width}) ~\text{mm}} = X ~~\text{lp/mm}$$
+
+
+# Simulation Setup
+
+Source-detector distance: 50 cm
+
+Environment: vacuum
+
+Linepairs: 0.5 lp/mm
+
+Source: Co-57
+
+```{python}
+# The below activity is in decompositions per second [dps] across the spectra and modality of 
+# beta and gamma emissions.
+
+A_Ba = 3.27e5;
+A_Cs = 3.488e5;
+A_Co = 1.125e5;
+A_Eu = 3.26e4;
+
+plt.figure(); plt.grid();
+plt.bar(["Barium-133","Cesium-137","Cobalt-57","Europium-152"],[A_Ba, A_Cs, A_Co, A_Eu])
+plt.ylabel("Radioactivity [dps]", fontsize=14); 
+plt.xlabel("Element-Isotope", fontsize=14);
+
+
+simDecays = 1e7;
+
+print("Simulated %.2f sec exposure with Co-57 source" % (simDecays / A_Co))
+```
+
+```{python}
+#data = pd.read_csv("../data/hit_decayTest2.csv", names=['E','det','i','j','x0','y0','z0']);
+#data = pd.read_csv("../data/hit_decayTest3.csv", names=['E','det','i','j','x0','y0','z0']);
+data = pd.read_csv("../data/hit_decayTest4.csv", names=['E','det','i','j','x0','y0','z0']);
+data.info()
+
+
+detectors = np.unique(data.det);
+
+plt.figure(); plt.grid(); plt.xlabel('Energy [keV]'); plt.ylabel('Counts');
+plt.hist(data.E, bins=np.logspace(np.log10(50), np.log10(300), 16));
+plt.title("Energy Spectra", fontsize=14);
+
+avg_image = np.zeros([16,16]);
+for detID in detectors:
+    sig = np.histogram2d(data.i[data.det == detID].values, data.j[data.det == detID].values, 
+                        bins=[np.linspace(0,16,17),np.linspace(0,16,17)]);
+    #plt.figure(figsize=(14,5));plt.subplot(1,2,1);c=plt.imshow(sig[0], cmap='Blues'); plt.colorbar(c);
+    #plt.subplot(1,2,2); plt.imshow(fftconvolve(sig[0], decoder), cmap='Blues')
+    avg_image += sig[0];
+    
+plt.figure(figsize=(14,5));
+plt.subplot(1,2,1); plt.title("Raw Detector Image")
+c=plt.imshow(avg_image, cmap='Blues');
+plt.colorbar(c);
+
+mask, decoder = makeMURA();
+
+MF  = 1
+rec_image1 = fftconvolve(avg_image - MF*np.mean(avg_image), decoder)
+rec_image1[rec_image1 < 0] = 0
+
+decoder[decoder == -1] = -0.7059;
+rec_image2 = fftconvolve(avg_image, decoder)
+
+
+plt.subplot(1,2,2);
+c=plt.imshow(rec_image1, cmap='Blues');
+plt.colorbar(c); plt.title("Method 0")
+
+
+plt.figure(figsize=(14,5));
+plt.subplot(1,2,1); plt.title("Raw Detector Image")
+c=plt.imshow(avg_image, cmap='Blues');
+plt.colorbar(c);
+
+plt.subplot(1,2,2);
+c=plt.imshow(rec_image2, cmap='Blues');
+plt.colorbar(c); plt.title("Method 1");
+```
+
+```{python}
+#data = pd.read_csv("../data/hit_decayTest2.csv", names=['E','det','i','j','x0','y0','z0']);
+#data = pd.read_csv("../data/hit_decayTest3.csv", names=['E','det','i','j','x0','y0','z0']);
+data = pd.read_csv("../data/hit_decayTest4_closer.csv", names=['E','det','i','j','x0','y0','z0']);
+
+data.info()
+
+
+detectors = np.unique(data.det);
+
+plt.figure(); plt.grid(); plt.xlabel('Energy [keV]'); plt.ylabel('Counts');
+plt.hist(data.E, bins=np.logspace(np.log10(50), np.log10(300), 16));
+plt.title("Energy Spectra", fontsize=14);
+
+avg_image = np.zeros([16,16]);
+for detID in detectors:
+    sig = np.histogram2d(data.i[data.det == detID].values, data.j[data.det == detID].values, 
+                        bins=[np.linspace(0,16,17),np.linspace(0,16,17)]);
+    #plt.figure(figsize=(14,5));plt.subplot(1,2,1);c=plt.imshow(sig[0], cmap='Blues'); plt.colorbar(c);
+    #plt.subplot(1,2,2); plt.imshow(fftconvolve(sig[0], decoder), cmap='Blues')
+    avg_image += sig[0];
+    
+plt.figure(figsize=(14,5));
+plt.subplot(1,2,1); plt.title("Raw Detector Image")
+c=plt.imshow(avg_image, cmap='Blues');
+plt.colorbar(c);
+
+mask, decoder = makeMURA();
+
+MF  = 1
+rec_image1 = fftconvolve(avg_image - MF*np.mean(avg_image), decoder)
+rec_image1[rec_image1 < 0] = 0
+
+decoder[decoder == -1] = -0.7059;
+rec_image2 = fftconvolve(avg_image, decoder)
+
+
+plt.subplot(1,2,2);
+c=plt.imshow(rec_image1, cmap='Blues');
+plt.colorbar(c); plt.title("Method 0")
+
+
+plt.figure(figsize=(14,5));
+plt.subplot(1,2,1); plt.title("Raw Detector Image")
+c=plt.imshow(avg_image, cmap='Blues');
+plt.colorbar(c);
+
+plt.subplot(1,2,2);
+c=plt.imshow(rec_image2, cmap='Blues');
+plt.colorbar(c); plt.title("Method 1");
+```
