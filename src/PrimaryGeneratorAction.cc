@@ -240,7 +240,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 		x = 0.;
 		y = 0.;
-		z = -50.*cm;
+		z = -15.*cm;
 
 		xDir = 0;
 		yDir = 0;

@@ -14,13 +14,12 @@ jupyter:
 
 ```{python}
 # %matplotlib inline
-# %autosave 0
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from scipy.signal import fftconvolve
+from scipy.signal import fftconvolve, convolve
 
 from util_fncs import makeMURA
 ```
@@ -76,7 +75,8 @@ print("Simulated %.2f sec exposure with Co-57 source" % (simDecays / A_Co))
 ```{python}
 #data = pd.read_csv("../data/hit_decayTest2.csv", names=['E','det','i','j','x0','y0','z0']);
 #data = pd.read_csv("../data/hit_decayTest3.csv", names=['E','det','i','j','x0','y0','z0']);
-data = pd.read_csv("../data/hit_decayTest4.csv", names=['E','det','i','j','x0','y0','z0']);
+#data = pd.read_csv("../data/hit_decayTest4.csv", names=['E','det','i','j','x0','y0','z0']);
+data = pd.read_csv("../data/hit_decayTest5.csv", names=['E','det','i','j','x0','y0','z0']);
 data.info()
 
 
@@ -102,11 +102,11 @@ plt.colorbar(c);
 mask, decoder = makeMURA();
 
 MF  = 1
-rec_image1 = fftconvolve(avg_image - MF*np.mean(avg_image), decoder)
+rec_image1 = fftconvolve(avg_image - MF*np.mean(avg_image), decoder, mode='same')
 rec_image1[rec_image1 < 0] = 0
 
 decoder[decoder == -1] = -0.7059;
-rec_image2 = fftconvolve(avg_image, decoder)
+rec_image2 = fftconvolve(avg_image, decoder, mode='same')
 
 
 plt.subplot(1,2,2);
@@ -127,7 +127,7 @@ plt.colorbar(c); plt.title("Method 1");
 ```{python}
 #data = pd.read_csv("../data/hit_decayTest2.csv", names=['E','det','i','j','x0','y0','z0']);
 #data = pd.read_csv("../data/hit_decayTest3.csv", names=['E','det','i','j','x0','y0','z0']);
-data = pd.read_csv("../data/hit_decayTest4_closer.csv", names=['E','det','i','j','x0','y0','z0']);
+data = pd.read_csv("../data/hit_decayTest6.csv", names=['E','det','i','j','x0','y0','z0']);
 
 data.info()
 
@@ -154,11 +154,11 @@ plt.colorbar(c);
 mask, decoder = makeMURA();
 
 MF  = 1
-rec_image1 = fftconvolve(avg_image - MF*np.mean(avg_image), decoder)
+rec_image1 = convolve(avg_image - MF*np.mean(avg_image), decoder, mode='full', method='direct')
 rec_image1[rec_image1 < 0] = 0
 
 decoder[decoder == -1] = -0.7059;
-rec_image2 = fftconvolve(avg_image, decoder)
+rec_image2 = convolve(avg_image, decoder, mode='full', method='direct')
 
 
 plt.subplot(1,2,2);
@@ -175,3 +175,25 @@ plt.subplot(1,2,2);
 c=plt.imshow(rec_image2, cmap='Blues');
 plt.colorbar(c); plt.title("Method 1");
 ```
+
+```{python}
+plt.figure(figsize=(8,6));
+c=plt.imshow(rec_image1);
+plt.colorbar(c);
+
+B = np.sum(rec_image1[14,:])
+C_arr = np.zeros([len(rec_image1)**2, 1]);
+for i in range(0, len(rec_image1)):
+    for j in range(0, len(rec_image1)):
+        S = np.sum(rec_image1[i,:]);
+        B = np.sum(rec_image1[j,:]);
+        C_arr[i*len(rec_image1)+j,:] = (S - B)/B
+
+plt.figure(figsize=(5.6,4)); plt.grid();
+plt.plot(C_arr); plt.ylabel('Contrast'); plt.xlabel('Index');
+```
+
+## Contrast calculation
+The contrast can be found from
+$$C = \frac{S-B}{B}$$
+where $S$ is the signal strength and $B$ is the background strength.

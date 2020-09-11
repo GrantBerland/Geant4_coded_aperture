@@ -173,17 +173,17 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 			    (boxXY+2.*mm)/2.,
 			    windowThickness/2.);
 
-  G4double boxDepth = 4.*cm; 
+  
   G4Box* outerShieldingBox = new G4Box("Outer-shielding",
 		   	    (boxXY*2.1+shieldingBoxThickness)/2.,
 			    (boxXY*2.1+shieldingBoxThickness)/2.,
-			    boxDepth/2.);
+			    5.*cm/2.);
   
   
   G4Box* innerSubtractionBox = new G4Box("Inner-sub",
 		   	    (boxXY*2.1)/2.,
 			    (boxXY*2.1)/2.,
-			    (boxDepth + 1.*cm)/2.);
+			    (5.*cm + 1.*cm)/2.);
   
  
   G4double collimatorHeight = 17.*mm;
@@ -401,7 +401,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   // Insert pixel assembly on top of detector
   detectorAssembly->AddPlacedAssembly(pixelAssembly, Tr);	  
   
-  unsigned int numberDetectors = 1;
+  unsigned int numberDetectors = 4;
   for(unsigned int i=0; i<numberDetectors; i++)
   {
   	  
@@ -474,7 +474,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   */
 
   // Linepair test has equal line thickness with interline distance
-  G4double line_thickness = 0.5*mm;
+  G4double line_thickness = 1.5*mm;
   G4double LP_spacing     = 2.*line_thickness;
 
   G4Box* LP_box = new G4Box("LP-box",
@@ -501,30 +501,26 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 				LP_sub_line,
 				new G4RotationMatrix(),
 				G4ThreeVector(0,-LP_spacing,0));
-  
-  LP_lines = new G4UnionSolid("LP-lines",
-		  		LP_lines,
-				LP_sub_line,
-				new G4RotationMatrix(),
-				G4ThreeVector(0,-2*LP_spacing,0));
 
-  LP_lines = new G4UnionSolid("LP-lines",
-		  		LP_lines,
-				LP_sub_line,
-				new G4RotationMatrix(),
-				G4ThreeVector(0,2*LP_spacing,0));
+  G4int numLPlines = 6;
+  for(G4int i = 2; i < numLPlines; i++)
+  {
   
-  LP_lines = new G4UnionSolid("LP-lines",
+    LP_lines = new G4UnionSolid("LP-lines",
 		  		LP_lines,
 				LP_sub_line,
 				new G4RotationMatrix(),
-				G4ThreeVector(0,3*LP_spacing,0));
+				G4ThreeVector(0,-i*LP_spacing,0));
 
-  LP_lines = new G4UnionSolid("LP-lines",
+    LP_lines = new G4UnionSolid("LP-lines",
 		  		LP_lines,
 				LP_sub_line,
 				new G4RotationMatrix(),
-				G4ThreeVector(0,-3*LP_spacing,0));
+				G4ThreeVector(0,i*LP_spacing,0));
+
+
+  }
+  
   
   G4SubtractionSolid* LP_box_line = new G4SubtractionSolid(
 		  			"LP-box",
@@ -539,11 +535,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		  			nist->FindOrBuildMaterial("G4_W"),
 					"LP-box"); 
   
-
-  G4RotationMatrix* LP_box_rotm = new G4RotationMatrix();
-  LP_box_rotm->rotateZ(45.*deg);
-  new G4PVPlacement(LP_box_rotm,            	  //no rotation
-                      G4ThreeVector(0.,0.,-48.*cm), 
+  G4double xShift = 0. * cm;
+  G4double yShift = 0. * cm;
+  
+  new G4PVPlacement(0,                     	  //no rotation
+                      G4ThreeVector(xShift,yShift,-13.*cm), 
 		      logic_LP_box,              //its logical volume
                       "LP-box",               //its name
                       logicEnv,                   //its mother  volume
