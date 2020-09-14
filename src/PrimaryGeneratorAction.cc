@@ -276,13 +276,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 	case 7: // GSFC Van de Graaf generator 
 		
-		// 2" diameter spot size
-		R     = G4UniformRand() * 2.54 * cm;
+		// 2 cm diameter spot size
+		R     = 2.54 * cm;
 		theta = G4UniformRand() * 2. * fPI;
 		
 		x = -10.*cm;
-		y = std::sqrt(R) * sin(theta);
-		z = 2.*cm + std::sqrt(R) * cos(theta);
+		y = R * std::sqrt(G4UniformRand()) * sin(theta);
+		z = 2.*cm + R * std::sqrt(G4UniformRand()) * cos(theta);
 
 		xDir = 1;
 		yDir = 0;

@@ -182,8 +182,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
-  G4double windowThickness = 0.5*mm;  // 2 windows, each 0.5 mm
-  G4double shieldingBoxThickness = 1.*cm;
+  G4double windowThickness = 2.*mm;
 
   G4double pixelSize      = 2.5*mm;
 
@@ -199,18 +198,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 			    windowThickness/2.);
 
   
-  G4Box* outerShieldingBox = new G4Box("Outer-shielding",
-		   	    (boxXY*2.1+shieldingBoxThickness)/2.,
-			    (boxXY*2.1+shieldingBoxThickness)/2.,
-			    5.*cm/2.);
-  
-  
-  G4Box* innerSubtractionBox = new G4Box("Inner-sub",
-		   	    (boxXY*2.1)/2.,
-			    (boxXY*2.1)/2.,
-			    (5.*cm + 1.*cm)/2.);
-  
- 
   G4double collimatorHeight = 17.*mm;
   G4VSolid* collimatorBlock = new G4Box("Collimator",
                                    0.5*collimatorHeight,
@@ -304,12 +291,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	  			   rotm,
 	  			   G4ThreeVector(0.,0.,0.));
   
-  G4SubtractionSolid* shieldingBox = 
-	    new G4SubtractionSolid("Shielding-Box",
-	  			   outerShieldingBox,
-	  			   innerSubtractionBox,
-	  			   rotm,
-	  			   G4ThreeVector(0.,0.,0.));
 
    G4Box* S1 = new G4Box("S1", 2.5*mm/2, 10*cm/2, 6*cm/2);
    G4Box* S2 = new G4Box("S2", 6.*mm/2,  10*cm/2, 6*cm/2);
@@ -370,11 +351,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                         "Window");         //its name
 
   
-  G4LogicalVolume* logic_shieldingBox =
-    new G4LogicalVolume(shieldingBox,            //its solid
-                        nist->FindOrBuildMaterial("G4_W"), // material
-                        "Shielding-Box");         //its name
-
     
   G4RotationMatrix* rotmCol = new G4RotationMatrix();
   rotmCol->rotateX(90.*deg);
@@ -401,12 +377,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   detectorAssembly->AddPlacedVolume(logic_window, Tr);
   
-  // Window 2 (between aperture and detector)
-  Tm.setX(0.); Tm.setY(0.); Tm.setZ((windowThickness+boxZ)/2.);
-  Tr = G4Transform3D(Rm, Tm); 
-  
-  detectorAssembly->AddPlacedVolume(logic_window, Tr);
- 
   // Coded aperture unioned subtraction solid
   Tm.setX(0.); Tm.setY(0.); Tm.setZ(0.);
   Tr = G4Transform3D(Rm, Tm); 
@@ -484,18 +454,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   }
   
  
-  // Outer shielding box placement
-  /*
-  new G4PVPlacement(0,                     //no rotation
-                      G4ThreeVector(0.,0.,2*cm), 
-		      logic_shieldingBox,            //its logical volume
-                      "Shielding-Box",               //its name
-                      logicEnv,                     //its mother  volume
-                      false,                 //no boolean operation
-                      0,                     //copy number
-                      checkOverlaps);        //overlaps checking
-  */
-
   // Collimator
   rotmCol->rotateY(90.*deg);
   new G4PVPlacement(rotmCol,                     //no rotation

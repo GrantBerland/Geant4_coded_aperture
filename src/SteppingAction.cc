@@ -99,7 +99,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   {
     G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName(); 
 
-    if(particleName == "gamma")
+    //if(particleName == "gamma")
     {
       // Position of hit
       const G4ThreeVector pos = aStep->GetPostStepPoint()->GetPosition();
@@ -110,7 +110,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
       const G4ThreeVector vtx = track->GetVertexPosition();
 
       // Redlen lower energy detection threshold
-      if(ene > 50.*keV) LogParticle(vtx, ene, nextVolName); 
+      if(ene > 40.*keV) LogParticle(vtx, ene, nextVolName); 
     }
   }    
 
