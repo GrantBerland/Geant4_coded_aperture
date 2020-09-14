@@ -238,10 +238,15 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	
 	case 6: // Linepair test
 
-		x = 0.;
-		y = 0.;
-		z = -15.*cm;
+		
+		R     = G4UniformRand() * 1.*cm;
+		theta = G4UniformRand() * 2. * fPI;
 
+		// 1 cm disk
+		x = std::sqrt(R) * std::cos(theta);
+		y = std::sqrt(R) * std::sin(theta);
+		z = -15.*cm;
+		
 		xDir = 0;
 		yDir = 0;
 		zDir = 0;
@@ -269,6 +274,26 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 		break;
 
+	case 7: // GSFC Van de Graaf generator 
+		
+		// 2" diameter spot size
+		R     = G4UniformRand() * 2.54 * cm;
+		theta = G4UniformRand() * 2. * fPI;
+		
+		x = -10.*cm;
+		y = std::sqrt(R) * sin(theta);
+		z = 2.*cm + std::sqrt(R) * cos(theta);
+
+		xDir = 1;
+		yDir = 0;
+		zDir = 0;
+
+		energy = fE0 * keV;
+  		
+		fParticleGun->SetParticleDefinition(electronParticle);
+
+		break;
+	
 	default:
 		throw std::invalid_argument("Choose distribution type!");
   }

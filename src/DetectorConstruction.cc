@@ -75,6 +75,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
               1.0 , 1.01*g/mole, 1.0E-25*g/cm3,
               kStateGas, 2.73*kelvin, 3.0E-18*pascal );
 
+  // GSFC REF high vacuum at 1e-6 Torr
+  G4Material* GSFC_vacuum = new G4Material("Vacuum",
+              1.0 , 1.01*g/mole, 1.0E-9*g/cm3,
+              kStateGas, 2.73*kelvin, 1.33E-4*pascal );
+  
   G4Material* air_material = new G4Material("Air",
               7.0 , 28.97*g/mole, 0.001004*g/cm3,
               kStateGas, 290*kelvin, 82000.*pascal );
@@ -88,6 +93,26 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   CZT->AddElement(Cd, 48*perCent);
   CZT->AddElement(Zn, 2*perCent);
   CZT->AddElement(Te, 50*perCent);
+
+
+  // Nylon 12 for W-nylon layer
+  G4Element* C = new G4Element("Carbon", "C", 6., 12.011*g/mole);
+  G4Element* H = new G4Element("Hydrogen", "H", 1., 1.008*g/mole);
+  G4Element* N = new G4Element("Nitrogen", "N", 7., 14.007*g/mole);
+  G4Element* O = new G4Element("Oxygen", "O", 8., 15.999*g/mole);
+
+  G4Material* nylon12   = new G4Material("Nylon12", 1.01*g/cm3, 4);
+  G4int natoms;
+  nylon12->AddElement(C, natoms=12);
+  nylon12->AddElement(H, natoms=23);
+  nylon12->AddElement(N, natoms=1);
+  nylon12->AddElement(O, natoms=1);
+
+  G4Material* W       = nist->FindOrBuildMaterial("G4_W");
+  G4Material* W_nylon = new G4Material("W_nylon", 11.*g/cm3, 2);
+  W_nylon->AddMaterial(W, 54.6*perCent);
+  W_nylon->AddMaterial(nylon12, 45.4*perCent);
+
 
   // Option to switch on/off checking of volumes overlaps
   //
@@ -106,7 +131,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   G4LogicalVolume* logicWorld =
     new G4LogicalVolume(solidWorld,          //its solid
-                        vacuum_material,           //its material
+                        GSFC_vacuum,           //its material
                         "World");            //its name
 
   G4VPhysicalVolume* physWorld =
@@ -286,6 +311,52 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	  			   rotm,
 	  			   G4ThreeVector(0.,0.,0.));
 
+   G4Box* S1 = new G4Box("S1", 2.5*mm/2, 10*cm/2, 6*cm/2);
+   G4Box* S2 = new G4Box("S2", 6.*mm/2,  10*cm/2, 6*cm/2);
+   G4Box* S3 = new G4Box("S3", 13.5*mm/2,10*cm/2, 6*cm/2);
+
+   G4LogicalVolume* logicS1 = new G4LogicalVolume(S1,
+		   		nist->FindOrBuildMaterial("G4_Sn"),
+				"S1");
+   G4LogicalVolume* logicS2 = new G4LogicalVolume(S2,
+		   		W_nylon,
+				"S2");
+   G4LogicalVolume* logicS3 = new G4LogicalVolume(S3,
+	  		nist->FindOrBuildMaterial("G4_POLYETHYLENE"),
+				"S3");
+
+   G4double layerZshift = 1.*cm;
+   new G4PVPlacement(0,                     	  //no rotation
+                      G4ThreeVector(-4.5*cm,0.,layerZshift), 
+		      logicS1,              //its logical volume
+                      "S1",               //its name
+                      logicEnv,                   //its mother  volume
+                      false,                      //no boolean operation
+                      0,                          //copy number
+                      checkOverlaps);        	  //overlaps checking
+   
+   new G4PVPlacement(0,                     	  //no rotation
+                      G4ThreeVector(-4.5*cm-2.5*mm/2-6.*mm/2,
+			      0.,
+			      layerZshift), 
+		      logicS2,              //its logical volume
+                      "S2",               //its name
+                      logicEnv,                   //its mother  volume
+                      false,                      //no boolean operation
+                      0,                          //copy number
+                      checkOverlaps);        	  //overlaps checking
+   
+   new G4PVPlacement(0,                     	  //no rotation
+                      G4ThreeVector(-4.5*cm-2.5*mm/2-6.*mm-13.5*mm/2,
+			      0.,
+			      layerZshift), 
+		      logicS3,              //its logical volume
+                      "S3",               //its name
+                      logicEnv,                   //its mother  volume
+                      false,                      //no boolean operation
+                      0,                          //copy number
+                      checkOverlaps);        	  //overlaps checking
+
   // Logical volumes
   G4LogicalVolume* logic_aperature_base =
     new G4LogicalVolume(logicAp1,            //its solid
@@ -414,6 +485,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
  
   // Outer shielding box placement
+  /*
   new G4PVPlacement(0,                     //no rotation
                       G4ThreeVector(0.,0.,2*cm), 
 		      logic_shieldingBox,            //its logical volume
@@ -422,6 +494,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                       false,                 //no boolean operation
                       0,                     //copy number
                       checkOverlaps);        //overlaps checking
+  */
 
   // Collimator
   rotmCol->rotateY(90.*deg);
