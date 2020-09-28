@@ -239,13 +239,15 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	case 6: // Linepair test
 
 		
-		R     = G4UniformRand() * 1.*cm;
-		theta = G4UniformRand() * 2. * fPI;
+		//R     = G4UniformRand() * 1.*cm;
+		//theta = G4UniformRand() * 2. * fPI;
 
 		// 1 cm disk
-		x = -2.*cm + std::sqrt(R) * std::cos(theta);
-		y = -2.*cm + std::sqrt(R) * std::sin(theta);
-		z = -15.*cm;
+		//x = -2.*cm + std::sqrt(R) * std::cos(theta);
+		//y = -2.*cm + std::sqrt(R) * std::sin(theta);
+		x = ((G4UniformRand())*5.-2.5)*cm;
+		y = ((G4UniformRand())*5.-2.5)*cm;
+	 	z = -15.*cm;
 		
 		xDir = 0;
 		yDir = 0;
