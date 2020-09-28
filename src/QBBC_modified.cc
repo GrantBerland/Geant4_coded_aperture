@@ -57,7 +57,7 @@
 #include "G4DecayPhysics.hh"
 #include "G4RadioactiveDecayPhysics.hh"
 
-#include "G4DataQuestionaire.hh"
+//#include "G4DataQuestionaire.hh"
 #include "G4HadronInelasticQBBC.hh"
 #include "G4HadronElasticPhysics.hh"
 #include "G4HadronElasticPhysicsXS.hh"
@@ -77,7 +77,7 @@
 
 QBBC_modified::QBBC_modified( G4int ver, const G4String&)
 {
-  G4DataQuestionaire it(photon, neutronxs);
+  //G4DataQuestionaire it(photon, neutronxs);
   G4cout << "<<< Reference Physics List QBBC "
 	 <<G4endl;	
 
