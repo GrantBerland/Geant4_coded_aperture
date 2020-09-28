@@ -1,0 +1,106 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.5.2
+  kernelspec:
+    display_name: Python [conda env:py3] *
+    language: python
+    name: conda-env-py3-py
+---
+
+```{python}
+# %matplotlib inline
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import pandas as pd
+
+from scipy.signal import fftconvolve
+from util_fncs import makeMURA
+```
+
+```{python}
+mask, decoder = makeMURA();
+```
+
+```{python}
+
+tracks = pd.read_csv("../data/particle_tracks.csv", names=['x','y','z','xDir','yDir','zDir'])
+tracks.info();
+
+Zthreshold = -13;
+Xthreshold = 2;
+Ythreshold = 2;
+
+tracks = tracks[tracks.z > Zthreshold];
+tracks = tracks[np.logical_and(tracks.x < Xthreshold, tracks.x > -Xthreshold)];
+tracks = tracks[np.logical_and(tracks.y < Ythreshold, tracks.y > -Ythreshold)];
+tracks.info();
+```
+
+```{python}
+# %matplotlib inline
+
+fig = plt.figure(figsize=(14,8));
+ax = fig.add_subplot(111, projection='3d')
+
+#ax.scatter(tracks.z, tracks.x, tracks.y, s=5);
+ax.quiver(tracks.z, tracks.x, tracks.y, 
+          tracks.zDir, tracks.xDir, tracks.yDir, 
+          length=0.1, normalize=True);
+ax.scatter(-15, 0, 0, 'o', s=30, label='Source');
+
+ax.set_xlabel('z');
+ax.set_ylabel('x');
+ax.set_zlabel('y');
+#ax.axis('equal'); ax.set_aspect('equal', adjustable='box')
+plt.legend();
+```
+
+```{python}
+# %matplotlib inline
+
+detData = pd.read_csv('../data/raytracing_1.csv', names=['E','det','i','j','x0','y0','z0'])
+detData.info();
+
+detectors = np.unique(detData.det);
+
+avg_image = np.zeros([16,16]);
+for detID in detectors:
+    sig = np.histogram2d(detData.i[detData.det == detID].values, detData.j[detData.det == detID].values, 
+                        bins=[np.linspace(0,16,17),np.linspace(0,16,17)]);
+    #plt.figure(figsize=(14,5));plt.subplot(1,2,1);c=plt.imshow(sig[0], cmap='Blues'); plt.colorbar(c);
+    #plt.subplot(1,2,2); plt.imshow(fftconvolve(sig[0], decoder), cmap='Blues')
+    avg_image += sig[0];
+
+MF  = 1
+rec_image1 = fftconvolve(avg_image - MF*np.mean(avg_image), decoder, mode='same')
+rec_image1[rec_image1 < 0] = 0
+
+decoder[decoder == -1] = -0.7059;
+rec_image2 = fftconvolve(avg_image, decoder, mode='same')
+
+plt.figure(figsize=(14,5));
+plt.subplot(1,2,1); plt.title("Raw Detector Image")
+c=plt.imshow(avg_image, cmap='Blues');
+plt.colorbar(c);
+
+plt.subplot(1,2,2);
+c=plt.imshow(rec_image1, cmap='Blues');
+plt.colorbar(c); plt.title("Method 0")
+
+
+plt.figure(figsize=(14,5));
+plt.subplot(1,2,1); plt.title("Raw Detector Image")
+c=plt.imshow(avg_image, cmap='Blues');
+plt.colorbar(c);
+
+plt.subplot(1,2,2);
+c=plt.imshow(rec_image2, cmap='Blues');
+plt.colorbar(c); plt.title("Method 1");
+```

@@ -73,14 +73,20 @@ print("Simulated %.2f sec exposure with Co-57 source" % (simDecays / A_Co))
 ```
 
 ```{python}
-#data = pd.read_csv("../data/hit_decayTest2.csv", names=['E','det','i','j','x0','y0','z0']);
-#data = pd.read_csv("../data/hit_decayTest3.csv", names=['E','det','i','j','x0','y0','z0']);
-#data = pd.read_csv("../data/hit_decayTest4.csv", names=['E','det','i','j','x0','y0','z0']);
-data = pd.read_csv("../data/hit_decayTest5.csv", names=['E','det','i','j','x0','y0','z0']);
+#data = pd.read_csv("../data/ptSource_test.csv", names=['E','det','i','j','x0','y0','z0']);
+data = pd.read_csv("../data/circularSource_test.csv", names=['E','det','i','j','x0','y0','z0']);
+data = pd.read_csv("../data/uniformPhiSource_test.csv", names=['E','det','i','j','x0','y0','z0']);
+
 data.info()
 
+data = data[np.logical_and(data.E > 50 , data.E < 300)];
+
+data.info()
 
 detectors = np.unique(data.det);
+
+#mask, decoder = makeMURA();
+decoder = np.load("NTHT_decoder.npy");
 
 plt.figure(); plt.grid(); plt.xlabel('Energy [keV]'); plt.ylabel('Counts');
 plt.hist(data.E, bins=np.logspace(np.log10(50), np.log10(300), 16));
@@ -90,24 +96,27 @@ avg_image = np.zeros([16,16]);
 for detID in detectors:
     sig = np.histogram2d(data.i[data.det == detID].values, data.j[data.det == detID].values, 
                         bins=[np.linspace(0,16,17),np.linspace(0,16,17)]);
-    #plt.figure(figsize=(14,5));plt.subplot(1,2,1);c=plt.imshow(sig[0], cmap='Blues'); plt.colorbar(c);
-    #plt.subplot(1,2,2); plt.imshow(fftconvolve(sig[0], decoder), cmap='Blues')
+    plt.figure(figsize=(14,5));plt.subplot(1,2,1);c=plt.imshow(sig[0], cmap='Blues'); plt.colorbar(c);
+    plt.subplot(1,2,2); c=plt.imshow(fftconvolve(sig[0], decoder), cmap='Blues'); plt.colorbar(c);
+    
     avg_image += sig[0];
+    
+    #avg_image += np.random.poisson(lam=1000, size=[16,16]);
     
 plt.figure(figsize=(14,5));
 plt.subplot(1,2,1); plt.title("Raw Detector Image")
 c=plt.imshow(avg_image, cmap='Blues');
 plt.colorbar(c);
 
-mask, decoder = makeMURA();
 
 MF  = 1
-rec_image1 = fftconvolve(avg_image - MF*np.mean(avg_image), decoder, mode='same')
+rec_image1 = fftconvolve(avg_image - MF*np.mean(avg_image), decoder, mode='full')
 rec_image1[rec_image1 < 0] = 0
 
 decoder[decoder == -1] = -0.7059;
-rec_image2 = fftconvolve(avg_image, decoder, mode='same')
-
+decoder[decoder == -1] = -0.7059;
+rec_image2 = fftconvolve(avg_image, decoder, mode='full')
+#rec_image2[rec_image2 < 0] = 0;
 
 plt.subplot(1,2,2);
 c=plt.imshow(rec_image1, cmap='Blues');
@@ -125,12 +134,9 @@ plt.colorbar(c); plt.title("Method 1");
 ```
 
 ```{python}
-#data = pd.read_csv("../data/hit_decayTest2.csv", names=['E','det','i','j','x0','y0','z0']);
-#data = pd.read_csv("../data/hit_decayTest3.csv", names=['E','det','i','j','x0','y0','z0']);
-data = pd.read_csv("../data/hit_decayTest6.csv", names=['E','det','i','j','x0','y0','z0']);
+data = pd.read_csv("../data/pinhole_test.csv", names=['E','det','i','j','x0','y0','z0']);
 
 data.info()
-
 
 detectors = np.unique(data.det);
 
@@ -150,30 +156,6 @@ plt.figure(figsize=(14,5));
 plt.subplot(1,2,1); plt.title("Raw Detector Image")
 c=plt.imshow(avg_image, cmap='Blues');
 plt.colorbar(c);
-
-mask, decoder = makeMURA();
-
-MF  = 1
-rec_image1 = convolve(avg_image - MF*np.mean(avg_image), decoder, mode='full', method='direct')
-rec_image1[rec_image1 < 0] = 0
-
-decoder[decoder == -1] = -0.7059;
-rec_image2 = convolve(avg_image, decoder, mode='full', method='direct')
-
-
-plt.subplot(1,2,2);
-c=plt.imshow(rec_image1, cmap='Blues');
-plt.colorbar(c); plt.title("Method 0")
-
-
-plt.figure(figsize=(14,5));
-plt.subplot(1,2,1); plt.title("Raw Detector Image")
-c=plt.imshow(avg_image, cmap='Blues');
-plt.colorbar(c);
-
-plt.subplot(1,2,2);
-c=plt.imshow(rec_image2, cmap='Blues');
-plt.colorbar(c); plt.title("Method 1");
 ```
 
 ```{python}

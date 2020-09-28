@@ -134,7 +134,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		x *= mm;
 		y = G4UniformRand()*detectorSize - detectorSize/2.;
 		y *= mm;
-		z = -20.*cm;
+		z = -10.*cm;
 
 		xDir = yDir = 0;
 		zDir = 1;
@@ -142,9 +142,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	case 2: // structured circle
 		R = std::sqrt(G4UniformRand() * 30.) * mm;
 		theta = G4UniformRand() * 2. * fPI;
-		x = 10.*mm + R * std::cos(theta);
-		y = 5.*mm - R * std::sin(theta);
-		z = -20.*cm;
+		x = -2.*cm + R * std::cos(theta);
+		y = -2.*cm + R * std::sin(theta);
+		z = -10.*cm;
 		
 		xDir = yDir = 0;
 		zDir = 1;
@@ -169,7 +169,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 	case 4: // Uniformly distributed phi angle
 		
-		R = 20.*cm;
+		R = 10.*cm;
 
   		// Angle of particle about field line
 		theta = G4UniformRand()*2.*fPI;
@@ -243,8 +243,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		theta = G4UniformRand() * 2. * fPI;
 
 		// 1 cm disk
-		x = std::sqrt(R) * std::cos(theta);
-		y = std::sqrt(R) * std::sin(theta);
+		x = -2.*cm + std::sqrt(R) * std::cos(theta);
+		y = -2.*cm + std::sqrt(R) * std::sin(theta);
 		z = -15.*cm;
 		
 		xDir = 0;

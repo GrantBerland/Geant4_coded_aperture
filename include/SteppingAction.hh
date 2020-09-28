@@ -51,17 +51,24 @@ class SteppingAction : public G4UserSteppingAction
 
     virtual ~SteppingAction();
 
-    // method from the base class
+    // Method from the base class
     virtual void UserSteppingAction(const G4Step*);
+    
     void LogParticle(G4ThreeVector, G4double, G4String);
+    void TrackParticlePosition(G4ThreeVector, G4ThreeVector);  
 
+    // Messenger class method
     void SetHitFileName(G4String fileName){ fFilename = fileName;};
-  
+    
+
+
   private:
     EventAction*       fEventAction;
     G4LogicalVolume*   fScoringVolume;
     SteppingMessenger* fSteppingMessenger;
     G4String           fFilename;
+    //std::vector<G4ThreeVector> fParticleStore;
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

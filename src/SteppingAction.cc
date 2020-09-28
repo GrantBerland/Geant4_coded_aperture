@@ -85,7 +85,28 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   if (track->GetVolume()) {volName = track->GetVolume()->GetName();}
   if (track->GetNextVolume()) {nextVolName = track->GetNextVolume()->GetName();}
 
+    G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName(); 
 
+    if(particleName != "gamma")
+    {
+      track->SetTrackStatus(fStopAndKill);
+    }
+
+    
+    const G4ThreeVector dir = aStep->GetPostStepPoint()->GetMomentumDirection();
+    if(dir.z() < 0)
+    {
+      track->SetTrackStatus(fStopAndKill);
+    }
+    // 
+    // Code for raytracing photons
+    //
+    /*
+    const G4ThreeVector pos = aStep->GetPostStepPoint()->GetPosition();
+    const G4ThreeVector dir = aStep->GetPostStepPoint()->GetMomentumDirection();
+    
+    TrackParticlePosition(pos, dir); 
+    */
 
   // Searching for match to "av_1_impr_X_Detector_pv_Y", starting from
   // character 12, where X is the impression copy 
@@ -97,7 +118,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   
   if(check1 && check2) // particle is in detector
   {
-    G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName(); 
+    //G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName(); 
 
     //if(particleName == "gamma")
     {
@@ -153,5 +174,24 @@ void SteppingAction::LogParticle(G4ThreeVector init_pos, G4double ene, G4String 
     hitFile_detector.close();
 }
 
+void SteppingAction::TrackParticlePosition(G4ThreeVector pos, G4ThreeVector dir)
+{
+	
+  G4AutoLock lock(&myParticleLog);
+	
+  std::ofstream position_file;
+  position_file.open("../data/particle_tracks.csv", std::ios_base::app);
+
+  position_file 
+  << pos.x() / cm << ',' 
+  << pos.y() / cm << ','
+  << pos.z() / cm << ','
+  << dir.x() << ',' 
+  << dir.y() << ','
+  << dir.z() << '\n';
+
+  position_file.close();
+
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

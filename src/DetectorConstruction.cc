@@ -177,8 +177,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double boxXY 	   = 4.*cm;
   G4double boxZ  	   = 1.5*mm;
   // FIX ME
-  G4double aperatureSquare = 0.2*cm;
-  //G4double aperatureSquare = 0.22*cm;
+  //G4double aperatureSquare = 0.2*cm;
+  G4double aperatureSquare = 0.22*cm/2.;
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
@@ -215,19 +215,21 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4UnionSolid* swapSolid;
   G4String placementXY_str; 
   G4double placementX, placementY; 
-  G4String token;
-  std::ifstream placementFile("coded_aperture_array.txt", std::ios_base::in);
+  G4String token, filename;
+
+  filename = "pinhole_array.txt";
+  std::ifstream placementFile("pinhole_array.txt", std::ios_base::in);
   
   // Get number of lines in file
   int numberOfBoxes = 0;
   while(getline(placementFile, placementXY_str, '\n'))
     { numberOfBoxes++; }
-  
+ 
   placementFile.close();
 
 
   // Reopen file to start from first line
-  placementFile.open("coded_aperture_array.txt", std::ios_base::in);
+  placementFile.open("pinhole_array.txt", std::ios_base::in);
   getline(placementFile, placementXY_str, '\n');
   
   token = placementXY_str.substr(
@@ -505,7 +507,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   */
 
   // Linepair test has equal line thickness with interline distance
-  G4double line_thickness = 1.5*mm;
+  G4double line_thickness = 2.5*mm;
   G4double LP_spacing     = 2.*line_thickness;
 
   G4Box* LP_box = new G4Box("LP-box",
@@ -566,8 +568,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		  			nist->FindOrBuildMaterial("G4_W"),
 					"LP-box"); 
   
-  G4double xShift = 0. * cm;
-  G4double yShift = 0. * cm;
+  G4double xShift = -2. * cm;
+  G4double yShift = -2. * cm;
   
   new G4PVPlacement(0,                     	  //no rotation
                       G4ThreeVector(xShift,yShift,-13.*cm), 
