@@ -245,8 +245,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		// 1 cm disk
 		//x = -2.*cm + std::sqrt(R) * std::cos(theta);
 		//y = -2.*cm + std::sqrt(R) * std::sin(theta);
-		x = ((G4UniformRand())*5.-2.5)*cm;
-		y = ((G4UniformRand())*5.-2.5)*cm;
+		R = 3.;
+		x = -2.*cm + ((G4UniformRand())*R-R/2.)*cm;
+		y = -2.*cm +((G4UniformRand())*R-R/2.)*cm;
 	 	z = -15.*cm;
 		
 		xDir = 0;

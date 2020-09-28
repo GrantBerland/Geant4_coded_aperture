@@ -177,8 +177,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double boxXY 	   = 4.*cm;
   G4double boxZ  	   = 1.5*mm;
   // FIX ME
-  //G4double aperatureSquare = 0.2*cm;
-  G4double aperatureSquare = 0.22*cm/2.;
+  G4double aperatureSquare = 0.2*cm/2.;
+  //G4double aperatureSquare = 0.22*cm;
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
@@ -217,8 +217,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double placementX, placementY; 
   G4String token, filename;
 
-  filename = "pinhole_array.txt";
-  std::ifstream placementFile("pinhole_array.txt", std::ios_base::in);
+  filename = "NTHT_MURA_array.txt";
+  std::ifstream placementFile(filename, std::ios_base::in);
   
   // Get number of lines in file
   int numberOfBoxes = 0;
@@ -229,7 +229,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 
   // Reopen file to start from first line
-  placementFile.open("pinhole_array.txt", std::ios_base::in);
+  placementFile.open(filename, std::ios_base::in);
   getline(placementFile, placementXY_str, '\n');
   
   token = placementXY_str.substr(

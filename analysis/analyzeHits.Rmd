@@ -134,7 +134,7 @@ plt.colorbar(c); plt.title("Method 1");
 ```
 
 ```{python}
-data = pd.read_csv("../data/pinhole_test.csv", names=['E','det','i','j','x0','y0','z0']);
+data = pd.read_csv("../data/pinhole_test2.csv", names=['E','det','i','j','x0','y0','z0']);
 
 data.info()
 
@@ -148,7 +148,7 @@ avg_image = np.zeros([16,16]);
 for detID in detectors:
     sig = np.histogram2d(data.i[data.det == detID].values, data.j[data.det == detID].values, 
                         bins=[np.linspace(0,16,17),np.linspace(0,16,17)]);
-    #plt.figure(figsize=(14,5));plt.subplot(1,2,1);c=plt.imshow(sig[0], cmap='Blues'); plt.colorbar(c);
+    plt.figure(figsize=(14,5));plt.subplot(1,2,1);c=plt.imshow(sig[0], cmap='Blues'); plt.colorbar(c);
     #plt.subplot(1,2,2); plt.imshow(fftconvolve(sig[0], decoder), cmap='Blues')
     avg_image += sig[0];
     
