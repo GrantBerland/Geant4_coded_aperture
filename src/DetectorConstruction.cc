@@ -444,7 +444,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   // Insert pixel assembly on top of detector
   detectorAssembly->AddPlacedAssembly(pixelAssembly, Tr);	  
   
-  unsigned int numberDetectors = 4;
+  unsigned int numberDetectors = 1;
   for(unsigned int i=0; i<numberDetectors; i++)
   {
   	  
@@ -568,8 +568,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		  			nist->FindOrBuildMaterial("G4_W"),
 					"LP-box"); 
   
-  G4double xShift = 0 * cm;
-  G4double yShift = 0 * cm;
+  G4double xShift = -2. * cm;
+  G4double yShift = -2. * cm;
   
   new G4PVPlacement(0,                     	  //no rotation
                       G4ThreeVector(xShift,yShift,-20.*cm), 

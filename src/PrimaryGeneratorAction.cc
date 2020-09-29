@@ -246,8 +246,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		//x = -2.*cm + std::sqrt(R) * std::cos(theta);
 		//y = -2.*cm + std::sqrt(R) * std::sin(theta);
 		R = 4.;
-		x = ((G4UniformRand())*R-R/2.)*cm;
-		y = ((G4UniformRand())*R-R/2.)*cm;
+		x = -2*cm + ((G4UniformRand())*R-R/2.)*cm;
+		y = -2*cm + ((G4UniformRand())*R-R/2.)*cm;
 	 	z = -22.*cm;
 		
 		xDir = 0;
