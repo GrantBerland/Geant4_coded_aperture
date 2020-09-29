@@ -568,8 +568,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		  			nist->FindOrBuildMaterial("G4_W"),
 					"LP-box"); 
   
-  G4double xShift = -2. * cm;
-  G4double yShift = -2. * cm;
+  G4double xShift = 0 * cm;
+  G4double yShift = 0 * cm;
   
   new G4PVPlacement(0,                     	  //no rotation
                       G4ThreeVector(xShift,yShift,-20.*cm), 
