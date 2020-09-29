@@ -517,9 +517,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   
   G4Box* LP_sub_line = new G4Box("LP-line",
-		  		2.*cm/2.,
+		  		3.*cm/2.,
 				line_thickness/2.,
-				2.*cm/2.);
+				3.*cm/2.);
   
 
 
@@ -572,7 +572,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double yShift = -2. * cm;
   
   new G4PVPlacement(0,                     	  //no rotation
-                      G4ThreeVector(xShift,yShift,-13.*cm), 
+                      G4ThreeVector(xShift,yShift,-20.*cm), 
 		      logic_LP_box,              //its logical volume
                       "LP-box",               //its name
                       logicEnv,                   //its mother  volume

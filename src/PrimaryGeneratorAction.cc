@@ -248,7 +248,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		R = 3.;
 		x = -2.*cm + ((G4UniformRand())*R-R/2.)*cm;
 		y = -2.*cm +((G4UniformRand())*R-R/2.)*cm;
-	 	z = -15.*cm;
+	 	z = -22.*cm;
 		
 		xDir = 0;
 		yDir = 0;
