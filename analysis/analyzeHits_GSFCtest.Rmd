@@ -18,27 +18,126 @@ jupyter:
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+```
 
-from scipy.signal import fftconvolve, convolve
+<!-- #region -->
+# GSFC Electron Beam Flux and Energy Calculation
 
-from util_fncs import makeMURA
+Let the nominal background noise on the detector be $N_{BG} = 20$ counts/det-s (to be refined with control data taken inside GSFC vacuum chamber), and the maximum detector count rate is $C_{max} = 60,000 ~cps$.
+
+The Redlen M1770 CZT photon energy range is 50 - 300 keV. We will assume that electrons are less efficient at energy deposition than photons, such that we're interested in looking at electron final energies of 50 - 500 keV.
+
+We would like a minimum number of electrons/bin to be approximately 10x as high as the background for sufficient statistics in each energy bin. This is the low end constraint. The upper end constraint is the minimum of the following: lowest intensity that the REF beam can achieve, $I_{min}$, or the maximum AXIS detector count rate, $C_{max}$.
+
+The minimum intensity the REF electron generator can achieve is
+
+$$I_{min} = 10^{-9} ~mA/cm^2 = 6 \times 10^6 ~e^-/s/cm^2$$
+
+over the energy ranges of 35 keV - 1.7 MeV. The beam is simulated passing through the shielding and depositing in the detector in GEANT4. The simulated shileding electron flux attenuation response to a monoenergetic beam is  
+   
+$$\frac{I}{I_0} = m ~E + b$$
+$$$$
+$$m = 8\times10^{-4}~keV^{-1} ~~,~~ b = -0.725$$
+
+
+where $E$ is the electron beam energy in units of keV. Typical $I/I_0$ values are $8.9\times10^{-4} - 7.0\times10^{-3}$ for energies of 1000 - 1700 keV. We aim to receive data in the following window:
+
+$$Range = [10 \cdot N_{BG}~,~ 2/3\cdot C_{max}] \approx [200, 40000]~cps$$
+
+<!-- #endregion -->
+
+<!-- #region -->
+## GEANT4 Simulation Setup
+
+
+<img src="./GSFC_setup1.png" width="400" />
+2'' beam diameter, isometric view
+
+<img src="./GSFC_setup2.png" width="300" /> 
+Top view
+<img src="./GSFC_setup3.png" width="300" />
+<!-- #endregion -->
+
+```{python}
+# "energy in keV": pandas dataframe
+GSFC_data = {"1000": pd.read_csv("../data/resultsFile_GSFCtest_1000keV.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1100": pd.read_csv("../data/resultsFile_GSFCtest_1100keV.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1200": pd.read_csv("../data/resultsFile_GSFCtest_1200keV.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1300": pd.read_csv("../data/resultsFile_GSFCtest_1300keV.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1400": pd.read_csv("../data/resultsFile_GSFCtest_1400keV.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1500": pd.read_csv("../data/resultsFile_GSFCtest_1500keV.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1600": pd.read_csv("../data/resultsFile_GSFCtest_1600keV.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1700": pd.read_csv("../data/resultsFile_GSFCtest_1700keV.csv", 
+                                 names=['E','det','i','j','x0','y0','z0'])}
+
+nSimulation = 1e6;
 ```
 
 ```{python}
+bins = np.logspace(np.log10(50), np.log10(500), 20);
+bins = np.insert(bins, 0, 0);            # underflow
+#bins = np.insert(bins, len(bins), 1500); # overflow
 
-# This simulation run
-E0      = 1700;       # keV
-N_parts = 1e6;  # electrons
+penFrac = [];
 
+for name in GSFC_data.keys():
+    
+    plt.figure(figsize=(14,5)); plt.subplot(1,2,1); plt.grid();
+    plt.hist(GSFC_data[name].E, bins=50);
+    plt.xlabel("Energy [keV]"); plt.ylabel("Counts");
+    plt.title(r"E$_0$ = %s keV, total counts: %i" % (name, len(GSFC_data[name])));
+    
+    plt.subplot(1,2,2); plt.grid();
+    plt.hist(GSFC_data[name].E, bins=bins);
+    plt.title("AXIS Bins");
+    plt.xlabel("Energy [keV]"); plt.ylabel("Counts");
+    
+    penFrac.append(len(GSFC_data[name])/nSimulation);
+    
+    print("E0 = %s keV %.3f%% electrons through shielding" % (name, 100*len(GSFC_data[name])/nSimulation))
+    
 ```
 
 ```{python}
-data = pd.read_csv("../data/resultsFile_GSFCtest.csv", names=['E','det','i','j','x0','y0','z0']);
-data.info()
+I                 = 6e6; # electrons/cm^2-sec
+integrationPeriod = 1;   # sec
+
+m = 0.0008;
+b = -0.725;
+
+energyArray = [1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700]; # keV
+
+plt.figure(figsize=(14,5)); plt.subplot(1,2,1); plt.grid();
+plt.plot(energyArray, np.multiply(penFrac, 100), '.', label='Geant Data');
+plt.xlabel("Beam Energy [keV]", fontsize=12);
+plt.ylabel("Beam Flux Penetration [%]", fontsize=12);
+plt.plot(energyArray, np.multiply(energyArray,m) + b, label='Linear Fit');
+plt.legend();
+
+plt.subplot(1,2,2); plt.grid();
+plt.plot(energyArray, np.multiply(penFrac, I*integrationPeriod), '.');
+plt.xlabel("Beam Energy [keV]", fontsize=12);
+plt.ylabel("Detector Count Rate [cps]\n(all energy bins)", fontsize=12);
+plt.suptitle("AXIS Shielding Response",fontsize=14);
+
+plt.hlines(200, min(energyArray), max(energyArray), label='C$_{min}$');
+plt.hlines(40000, min(energyArray), max(energyArray), label='C$_{max}$'); plt.legend();
+```
+
+```{python}
+data = pd.read_csv("../data/resultsFile_GSFCtest_1700keV.csv", names=['E','det','i','j','x0','y0','z0']);
+#data.info()
 
 detectors = np.unique(data.det);
 
-plt.figure(); plt.grid(); plt.xlabel('Energy [keV]'); plt.ylabel('Counts');
+plt.figure(figsize=(14,5)); plt.grid(); plt.xlabel('Energy [keV]'); plt.ylabel('Counts'); plt.subplot(1,2,1)
 h = plt.hist(data.E, bins=100)#, bins=np.logspace(np.log10(50), np.log10(300), 16));
 plt.title("Energy Spectra", fontsize=14);
 
@@ -50,55 +149,8 @@ for detID in detectors:
     #plt.subplot(1,2,2); plt.imshow(fftconvolve(sig[0], decoder), cmap='Blues')
     avg_image += sig[0];
     
-plt.figure(figsize=(14,5));
-plt.subplot(1,2,1); plt.title("Raw Detector Image")
+plt.subplot(1,2,2);
+plt.title("Raw Detector Image")
 c=plt.imshow(avg_image, cmap='Blues');
 plt.colorbar(c);
-
-mask, decoder = makeMURA();
-
-MF  = 1
-rec_image1 = fftconvolve(avg_image - MF*np.mean(avg_image), decoder, mode='same')
-rec_image1[rec_image1 < 0] = 0
-
-decoder[decoder == -1] = -0.7059;
-rec_image2 = fftconvolve(avg_image, decoder, mode='same')
-
-
-plt.subplot(1,2,2);
-c=plt.imshow(rec_image1, cmap='Blues');
-plt.colorbar(c); plt.title("Method 0")
-
-
-plt.figure(figsize=(14,5));
-plt.subplot(1,2,1); plt.title("Raw Detector Image")
-c=plt.imshow(avg_image, cmap='Blues');
-plt.colorbar(c);
-
-plt.subplot(1,2,2);
-c=plt.imshow(rec_image2, cmap='Blues');
-plt.colorbar(c); plt.title("Method 1");
-
-print("\nWeird peak at %.2f keV?" % (h[1][np.argmax(h[0])]))
-```
-
-```{python}
-# %matplotlib inline
-from mpl_toolkits.mplot3d import Axes3D
-
-
-plt.figure(); plt.grid(); plt.xlabel('Energy [keV]'); plt.ylabel('Counts');
-h = plt.hist(data.E, bins=50)#, bins=np.logspace(np.log10(50), np.log10(300), 16));
-plt.title("Energy Spectra", fontsize=14);
-
-
-xlim = 10;
-plt.figure(figsize=(6,6)); plt.grid();
-plt.scatter(data.z0[data.x0 < xlim], data.y0[data.x0 < xlim]);
-plt.axis('equal'); plt.xlabel('z'); plt.ylabel('y');
-
-plt.figure();
-plt.hist(data.x0);
-
-print(data.x0[data.x0 < -7])
 ```

@@ -87,17 +87,19 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
 
     G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName(); 
 
+    /*
     if(particleName != "gamma")
     {
       track->SetTrackStatus(fStopAndKill);
     }
-
     
     const G4ThreeVector dir = aStep->GetPostStepPoint()->GetMomentumDirection();
     if(dir.z() < 0)
     {
       track->SetTrackStatus(fStopAndKill);
     }
+    */
+    
     // 
     // Code for raytracing photons
     //

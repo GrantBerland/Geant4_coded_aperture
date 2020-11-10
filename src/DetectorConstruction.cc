@@ -224,7 +224,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   int numberOfBoxes = 0;
   while(getline(placementFile, placementXY_str, '\n'))
     { numberOfBoxes++; }
- 
+
   placementFile.close();
 
 
@@ -444,7 +444,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   // Insert pixel assembly on top of detector
   detectorAssembly->AddPlacedAssembly(pixelAssembly, Tr);	  
   
-  unsigned int numberDetectors = 1;
+  unsigned int numberDetectors = 4;
   for(unsigned int i=0; i<numberDetectors; i++)
   {
   	  
@@ -507,7 +507,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   */
 
   // Linepair test has equal line thickness with interline distance
-  G4double line_thickness = 2.5*mm;
+  G4double line_thickness = 4.*mm;
   G4double LP_spacing     = 2.*line_thickness;
 
   G4Box* LP_box = new G4Box("LP-box",
@@ -535,7 +535,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 				new G4RotationMatrix(),
 				G4ThreeVector(0,-LP_spacing,0));
 
-  G4int numLPlines = 6;
+  G4int numLPlines = 2;
   for(G4int i = 2; i < numLPlines; i++)
   {
   
