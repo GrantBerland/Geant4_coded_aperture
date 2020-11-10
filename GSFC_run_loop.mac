@@ -1,0 +1,21 @@
+
+# Set low energy EM processes, including fluorescence
+/process/em/fluo true 
+/process/em/auger false
+/process/em/augerCascade false
+/process/em/pixe true
+/process/em/deexcitationIgnoreCut false
+
+
+#/cuts/setMaxCutEnergy 50 eV
+/run/initialize
+
+
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+
+/control/foreach runBeamOnGSFC.mac E0 1000 1100 1200 1300 1400 1500 1600 1700
+
