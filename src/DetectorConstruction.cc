@@ -297,6 +297,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
    G4Box* S1 = new G4Box("S1", 2.5*mm/2, 10*cm/2, 6*cm/2);
    G4Box* S2 = new G4Box("S2", 6.*mm/2,  10*cm/2, 6*cm/2);
    G4Box* S3 = new G4Box("S3", 13.5*mm/2,10*cm/2, 6*cm/2);
+   G4Box* S4 = new G4Box("S4", 2.*mm/2,  10*cm/2, 6*cm/2);
+
 
    G4LogicalVolume* logicS1 = new G4LogicalVolume(S1,
 		   		nist->FindOrBuildMaterial("G4_Sn"),
@@ -307,6 +309,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
    G4LogicalVolume* logicS3 = new G4LogicalVolume(S3,
 	  		nist->FindOrBuildMaterial("G4_POLYETHYLENE"),
 				"S3");
+   
+   G4LogicalVolume* logicS4 = new G4LogicalVolume(S4,
+	  		nist->FindOrBuildMaterial("G4_Al"),
+				"S4");
 
    G4double layerZshift = 1.*cm;
    new G4PVPlacement(0,                     	  //no rotation
@@ -340,7 +346,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                       0,                          //copy number
                       checkOverlaps);        	  //overlaps checking
 
-  // Logical volumes
+   new G4PVPlacement(0,                     	  //no rotation
+                G4ThreeVector(-4.5*cm-2.5*mm/2-6.*mm-13.5*mm-2.*mm/2,
+			      0.,
+			      layerZshift), 
+		      logicS4,              //its logical volume
+                      "S4",               //its name
+                      logicEnv,                   //its mother  volume
+                      false,                      //no boolean operation
+                      0,                          //copy number
+                      checkOverlaps);        	  //overlaps checking
+  
+   // Logical volumes
   G4LogicalVolume* logic_aperature_base =
     new G4LogicalVolume(logicAp1,            //its solid
                         nist->FindOrBuildMaterial("G4_W"), // material

@@ -81,6 +81,53 @@ nSimulation = 1e6;
 ```
 
 ```{python}
+# "energy in keV": pandas dataframe
+GSFC_data_LR = {"1000": pd.read_csv("../data/resultsFile_GSFCtest_1000keV_LR.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1100": pd.read_csv("../data/resultsFile_GSFCtest_1100keV_LR.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1200": pd.read_csv("../data/resultsFile_GSFCtest_1200keV_LR.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1300": pd.read_csv("../data/resultsFile_GSFCtest_1300keV_LR.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1400": pd.read_csv("../data/resultsFile_GSFCtest_1400keV_LR.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1500": pd.read_csv("../data/resultsFile_GSFCtest_1500keV_LR.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1600": pd.read_csv("../data/resultsFile_GSFCtest_1600keV_LR.csv", 
+                                 names=['E','det','i','j','x0','y0','z0']),
+             "1700": pd.read_csv("../data/resultsFile_GSFCtest_1700keV_LR.csv", 
+                                 names=['E','det','i','j','x0','y0','z0'])}
+
+nSimulation_LR = 1e8;
+```
+
+```{python}
+bins = np.logspace(np.log10(50), np.log10(500), 20);
+bins = np.insert(bins, 0, 0);            # underflow
+#bins = np.insert(bins, len(bins), 1500); # overflow
+
+penFrac_LR = [];
+
+for name in GSFC_data_LR.keys():
+    
+    plt.figure(figsize=(14,5)); plt.subplot(1,2,1); plt.grid();
+    plt.hist(GSFC_data_LR[name].E, bins=50);
+    plt.xlabel("Energy [keV]"); plt.ylabel("Counts");
+    plt.title(r"E$_0$ = %s keV, total counts: %i" % (name, len(GSFC_data_LR[name])));
+    
+    plt.subplot(1,2,2); plt.grid();
+    plt.hist(GSFC_data[name].E, bins=bins);
+    plt.title("AXIS Bins");
+    plt.xlabel("Energy [keV]"); plt.ylabel("Counts");
+    
+    penFrac_LR.append(len(GSFC_data_LR[name])/nSimulation_LR);
+    
+    print("E0 = %s keV %.3f%% electrons through shielding" % (name, 100*len(GSFC_data_LR[name])/nSimulation_LR))
+    
+```
+
+```{python}
 bins = np.logspace(np.log10(50), np.log10(500), 20);
 bins = np.insert(bins, 0, 0);            # underflow
 #bins = np.insert(bins, len(bins), 1500); # overflow
@@ -115,14 +162,16 @@ b = -0.725;
 energyArray = [1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700]; # keV
 
 plt.figure(figsize=(14,5)); plt.subplot(1,2,1); plt.grid();
-plt.plot(energyArray, np.multiply(penFrac, 100), '.', label='Geant Data');
+#plt.plot(energyArray, np.multiply(penFrac, 100), '.', label='Geant Data, n=10$^6$');
+plt.plot(energyArray[0:-1], np.multiply(penFrac_LR[0:-1], 100), '.', label='Geant Data, n=10$^8$');
 plt.xlabel("Beam Energy [keV]", fontsize=12);
 plt.ylabel("Beam Flux Penetration [%]", fontsize=12);
 plt.plot(energyArray, np.multiply(energyArray,m) + b, label='Linear Fit');
 plt.legend();
 
 plt.subplot(1,2,2); plt.grid();
-plt.plot(energyArray, np.multiply(penFrac, I*integrationPeriod), '.');
+#plt.plot(energyArray, np.multiply(penFrac, I*integrationPeriod), '.',    label='Geant Data, n=10$^6$');
+plt.plot(energyArray[0:-1], np.multiply(penFrac_LR[0:-1], I*integrationPeriod), '.', label='Geant Data, n=10$^8$');
 plt.xlabel("Beam Energy [keV]", fontsize=12);
 plt.ylabel("Detector Count Rate [cps]\n(all energy bins)", fontsize=12);
 plt.suptitle("AXIS Shielding Response",fontsize=14);
