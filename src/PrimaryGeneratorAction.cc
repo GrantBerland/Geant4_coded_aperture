@@ -296,6 +296,23 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		fParticleGun->SetParticleDefinition(electronParticle);
 
 		break;
+	case 8:
+		R = 2.54 * cm;
+		theta = G4UniformRand() * 2. * fPI;
+
+		x = -2.*cm+ R * std::sqrt(G4UniformRand()) * sin(theta);
+		y = 2.*cm + R * std::sqrt(G4UniformRand()) * cos(theta);
+		z = -10.*cm;
+		
+		xDir = 0;
+		yDir = 0;
+		zDir = 1;
+		
+		energy = fE0 * keV;
+		
+		fParticleGun->SetParticleDefinition(electronParticle);
+		
+		break;
 	
 	default:
 		throw std::invalid_argument("Choose distribution type!");

@@ -297,7 +297,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
    G4Box* S1 = new G4Box("S1", 2.5*mm/2, 10*cm/2, 6*cm/2);
    G4Box* S2 = new G4Box("S2", 6.*mm/2,  10*cm/2, 6*cm/2);
    G4Box* S3 = new G4Box("S3", 13.5*mm/2,10*cm/2, 6*cm/2);
-   G4Box* S4 = new G4Box("S4", 2.*mm/2,  10*cm/2, 6*cm/2);
+   G4Box* S4 = new G4Box("S4", 1.*mm/2,  10*cm/2, 6*cm/2);
 
 
    G4LogicalVolume* logicS1 = new G4LogicalVolume(S1,
