@@ -2,9 +2,9 @@
 
 # 0 = near point source
 # 1 = infinitely far away point source
-/energy/setDistributionType 8 
+/energy/setDistributionType 7 
 /energy/setFoldingEnergy {E0}    # [keV]
 
-/dataCollection/setHitFileName resultsFile_GSFCtest_test2_{E0}keV.csv
+/dataCollection/setHitFileName resultsFile_GSFCtest_newTests_1e8_{E0}keV.csv
 
-/run/beamOn 1000000
+/run/beamOn 100000000

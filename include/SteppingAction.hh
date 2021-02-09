@@ -54,7 +54,7 @@ class SteppingAction : public G4UserSteppingAction
     // Method from the base class
     virtual void UserSteppingAction(const G4Step*);
     
-    void LogParticle(G4ThreeVector, G4double, G4String);
+    void LogParticle(G4ThreeVector, G4double, G4String, G4String);
     void TrackParticlePosition(G4ThreeVector, G4ThreeVector);  
 
     // Messenger class method

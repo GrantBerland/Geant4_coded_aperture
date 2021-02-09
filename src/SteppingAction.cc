@@ -133,13 +133,13 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
       const G4ThreeVector vtx = track->GetVertexPosition();
 
       // Redlen lower energy detection threshold
-      if(ene > 40.*keV) LogParticle(vtx, ene, nextVolName); 
+      if(ene > 40.*keV) LogParticle(vtx, ene, nextVolName, particleName); 
     }
   }    
 
 }
 
-void SteppingAction::LogParticle(G4ThreeVector init_pos, G4double ene, G4String volName)
+void SteppingAction::LogParticle(G4ThreeVector init_pos, G4double ene, G4String volName, G4String partName)
 {
     // locks program so that multiple threads cannot write to file
     // at once, unlocks when current scope (i.e. this method) is left
@@ -170,8 +170,8 @@ void SteppingAction::LogParticle(G4ThreeVector init_pos, G4double ene, G4String 
     << jNum << "," 
     << init_pos.x()/cm << "," 
     << init_pos.y()/cm << "," 
-    << init_pos.z()/cm 
-    << "\n";
+    << init_pos.z()/cm << "," 
+    << partName << "\n";
 
     hitFile_detector.close();
 }

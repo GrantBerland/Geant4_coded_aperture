@@ -1,0 +1,355 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.5.2
+  kernelspec:
+    display_name: Python [conda env:py3] *
+    language: python
+    name: conda-env-py3-py
+---
+
+<!-- #region -->
+# GSFC Electron Beam Flux and Energy Calculation
+
+Let the nominal background noise on the detector be $N_{BG} = 20$ counts/s-det (to be refined with control data taken inside GSFC vacuum chamber), and the maximum detector count rate is $C_{max}$.
+
+The Redlen M1770 CZT photon energy range is 50 - 300 keV. We will assume that electrons are less efficient at energy deposition than photons, such that we're interested in looking at electron final energies of 50 - 500 keV.
+
+We would like a minimum number of electrons/bin to be approximately 10x as high as the background for sufficient statistics in each energy bin. This is the low end constraint. The upper end constraint is the maximum AXIS detector count rate, $C_{max}$.
+
+The minimum intensity the REF electron generator can achieve is
+
+$$I_{min} = 10^{-9} ~mA/cm^2 = 6 \times 10^6 ~e^-/s/cm^2$$
+
+over the energy ranges of 35 keV - 1.7 MeV. The beam is simulated passing through the shielding and depositing in the Redlen detectors in GEANT4. The simulated shielding electron flux attenuation response to a monoenergetic beam is  
+   
+$$\frac{I}{I_0} = m ~E + b$$
+
+$$m = 8\times10^{-4}~keV^{-1} ~~,~~ b = -0.725$$
+
+
+where $E$ is the electron beam energy in units of keV. Typical $I/I_0$ values are $8.9\times10^{-4} - 7.0\times10^{-3}$ for energies of 1000 - 1700 keV. We aim to receive data in the following window:
+
+$$Range = [10 \cdot N_{BG}~,~ C_{max}] \approx [200, 80000]~cps$$
+
+<!-- #endregion -->
+
+
+<img src="./GSFC_setup1.png" width="400" />
+<img src="./GSFC_setup2.png" width="300" /> 
+<img src="./GSFC_setup3.png" width="300" />
+
+```{python}
+# %matplotlib inline
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+from scipy.optimize import curve_fit
+```
+
+```{python}
+# Connor's testing results for the average maximum count rate for one detector, 
+# using 4 sources directly on the detector
+intPeriod  = [0.25, 0.5, 0.75, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; # [seconds]
+avgCntRate = [15200,60550,76000,83550,94850, 99192,101706,103250,104354,105114,105713,106167,106495]; # [cps]
+plt.figure(figsize=(8,5)); plt.grid(); plt.plot(intPeriod, avgCntRate, '.-');
+plt.xlabel('Integration Period [s]', fontsize=14); plt.title("One Module Saturation Test",fontsize=14);
+plt.ylabel('Maximum Count Rate\n at 100% Saturation [cps]', fontsize=14);
+plt.hlines(xmin=0, xmax=10, y=60000, linestyle='--', label='Redlen Quoted Max Count Rate'); plt.legend();
+```
+
+```{python}
+def readInFrames2Dictionary(extension, test):
+    if test is 1:
+        # "energy in keV": pandas dataframe
+        return {"1000": pd.read_csv("../data/resultsFile_GSFCtest_1000keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                 "1100": pd.read_csv("../data/resultsFile_GSFCtest_1100keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                 "1200": pd.read_csv("../data/resultsFile_GSFCtest_1200keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                 "1300": pd.read_csv("../data/resultsFile_GSFCtest_1300keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                 "1400": pd.read_csv("../data/resultsFile_GSFCtest_1400keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                 "1500": pd.read_csv("../data/resultsFile_GSFCtest_1500keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                 "1600": pd.read_csv("../data/resultsFile_GSFCtest_1600keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                 "1700": pd.read_csv("../data/resultsFile_GSFCtest_1700keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0'])};
+    if test is 2:
+        return {"200": pd.read_csv("../data/resultsFile_GSFCtest_200keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "250": pd.read_csv("../data/resultsFile_GSFCtest_250keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "300": pd.read_csv("../data/resultsFile_GSFCtest_300keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "350": pd.read_csv("../data/resultsFile_GSFCtest_350keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "400": pd.read_csv("../data/resultsFile_GSFCtest_400keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "450": pd.read_csv("../data/resultsFile_GSFCtest_450keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "500": pd.read_csv("../data/resultsFile_GSFCtest_500keV_" + str(extension) + ".csv", 
+                                     names=['E','det','i','j','x0','y0','z0']),};
+    if test is 3:
+        try:
+            frame = {"200": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_200keV.csv",
+                                         names=['E','det','i','j','x0','y0','z0']),
+                    "300": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_300keV.csv",
+                                         names=['E','det','i','j','x0','y0','z0']),
+                    "400": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_400keV.csv",
+                                         names=['E','det','i','j','x0','y0','z0']),
+                    "500": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_500keV.csv",
+                                         names=['E','det','i','j','x0','y0','z0']),
+                    "600": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_600keV.csv",
+                                         names=['E','det','i','j','x0','y0','z0']),
+                    "700": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_700keV.csv",
+                                         names=['E','det','i','j','x0','y0','z0']),
+                    "800": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_800keV.csv",
+                                         names=['E','det','i','j','x0','y0','z0']),
+                    "900": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_900keV.csv",
+                                         names=['E','det','i','j','x0','y0','z0']),}
+        except:
+            frame={"300": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_300keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "400": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_400keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "500": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_500keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "600": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_600keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "700": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_700keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "800": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_800keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']),
+                "900": pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_900keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']),}
+            
+            frame["200"] = pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_1e8_200keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0'])
+            frame["300"] = frame["300"].append(pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_1e8_300keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']));
+            frame["400"] = frame["400"].append(pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_1e8_400keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']));
+            frame["500"] = frame["500"].append(pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_1e8_500keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']));
+            frame["600"] = frame["600"].append(pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_1e8_600keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']));
+            frame["700"] = frame["700"].append(pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_1e8_700keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']));
+            frame["800"] = frame["800"].append(pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_1e8_800keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']));
+            frame["900"] = frame["900"].append(pd.read_csv("../data/resultsFile_GSFCtest_lowerEnergy_1e8_900keV.csv",
+                                     names=['E','det','i','j','x0','y0','z0']));
+            
+        
+        return frame
+            
+
+def fit_fnc1(x, a, b):
+    return a * np.exp(-x / b)
+def fit_fnc2(x, a, b):
+    return a * np.log(x / b)
+    
+def plotTestSpectra(frame, bins, nSimParts, plotOn):
+    
+    penetratingFraction = [];
+    plt.figure(figsize=(14,3)); plt.subplot(1,2,1); plt.grid();
+    totalCounts = 0;
+    for name in frame.keys():
+        if plotOn is True:
+            #plt.figure(figsize=(14,3)); plt.subplot(1,2,1); plt.grid();
+            plt.subplot(1,2,1); plt.grid(True);
+            h = plt.hist(frame[name].E, bins=50, alpha=0.5, label=['E$_0$=%s keV' % name]);
+            plt.xlabel("Energy [keV]"); plt.ylabel("Counts");
+            plt.title("All energies");
+            #plt.legend();
+            
+            y = h[0]
+            x = h[1][0:-1] + np.diff(h[1])/2
+            
+            popt,pcov = curve_fit(fit_fnc1, x, y, p0=(100, 100));
+            plt.plot(x, fit_fnc1(x, *popt), 'r--')
+            
+            plt.subplot(1,2,2); plt.grid(True);
+            h = plt.hist(frame[name].E, bins=bins, alpha=0.5);
+            plt.title("AXIS Bins");
+            plt.xlabel("Energy [keV]"); plt.ylabel("Counts");
+            
+            y = h[0][1:-1]
+            x = h[1][2:-1] + np.diff(h[1][1:-1])/2
+            
+            try:
+                popt2,pcov2 = curve_fit(fit_fnc2, x, y, p0=(1000,10))
+            except:
+                popt2 = [1 ,1];
+                print("No log fit convergence on %s (oh well)" % name)
+                
+            plt.plot(x, fit_fnc2(x, *popt2), 'r--');
+            
+            totalCounts += len(frame[name]);
+
+        penetratingFraction.append(len(frame[name])/nSimParts);
+
+        print("E0 = %s keV %.3f%% penetrating fraction, E0fit = %.2f keV, total counts = %.2e" 
+              % (name, 100*len(frame[name])/nSimParts, popt[1], totalCounts))
+        
+
+    print();
+    return penetratingFraction;
+
+GSFC_data_2mm  = readInFrames2Dictionary("LR2", 1); # 2 mm aluminum
+GSFC_data_LR   = readInFrames2Dictionary("LR", 1);  # no aluminum, long run simulation
+GSFC_data_1mm  = readInFrames2Dictionary("1mm", 1); # 1 mm aluminum
+GSFC_data_test2= readInFrames2Dictionary("test2", 1);
+GSFC_data_test2_2= readInFrames2Dictionary("test2", 2);
+GSFC_data_lowerE = readInFrames2Dictionary("", 3);
+nSimulation    = 1e6;  # typical simulation
+nSimulation_LR = 1e8;  # long run simulation
+nSimulation_LE = 1.01e8;  # lower energy simulation
+
+GSFC_data_LR['1100'].head()
+```
+
+```{python}
+bins = np.logspace(np.log10(50), np.log10(500), 20);
+bins = np.insert(bins, 0, 0);            # underflow
+#bins = np.insert(bins, len(bins), 1500); # overflow
+
+print("No aluminum")
+# no aluminum
+penFrac_LR = plotTestSpectra(GSFC_data_LR, bins, 1e8, True);
+
+print("1 mm aluminum")
+# 1 mm aluminum
+penFrac_1mm = plotTestSpectra(GSFC_data_1mm, bins, 1e6, True);
+
+print("2 mm aluminum")
+# 2 mm aluminum
+penFrac_2mm = plotTestSpectra(GSFC_data_2mm, bins, 1e6, True);
+
+print("Test 2")
+penFrac_test2 = plotTestSpectra(GSFC_data_test2, bins, 1e6, True);
+
+print("Test 2, lower energies")
+penFrac_test2_2 = plotTestSpectra(GSFC_data_test2_2, bins, 1e6, True);
+
+print("Test 3, even lower energies, no aluminum")
+penFrac_test3 = plotTestSpectra(GSFC_data_lowerE, bins, 1.01e8, True);
+```
+
+```{python}
+I                 = 6e6; # electrons/cm^2-sec
+integrationPeriod = 1;   # sec
+
+def fit_fnc3(x, m, b): # linear fit
+    return np.multiply(m, x) + b
+
+energyArray2= [300, 400, 500, 600, 700, 800, 900];         # keV
+energyArray = [1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700]; # keV
+
+plt.figure(figsize=(14,5)); plt.subplot(1,2,1); plt.grid();
+plt.plot(energyArray2, np.multiply(penFrac_test3, 100), '.', 
+         energyArray[0:-1], np.multiply(penFrac_LR[0:-1], 100), '.', label='no Al');
+plt.plot(energyArray, np.multiply(penFrac_1mm, 100), '.', label='1 mm Al')
+plt.plot(energyArray, np.multiply(penFrac_2mm, 100), '.', label='2 mm Al')
+plt.xlabel("Beam Energy [keV]", fontsize=12);
+plt.ylabel("Beam Flux Penetration [%]", fontsize=12);
+
+popt_lin1, _ = curve_fit(fit_fnc3, energyArray[0:-1], penFrac_LR[0:-1]);
+popt_lin2, _ = curve_fit(fit_fnc3, energyArray, penFrac_1mm);
+popt_lin3, _ = curve_fit(fit_fnc3, energyArray, penFrac_2mm);
+popt_lin4, _ = curve_fit(fit_fnc3, energyArray2, penFrac_test3);
+
+print("no Al: m = %.2e /keV, b = %.2e"   % (popt_lin1[0], popt_lin1[1]))
+print("1 mm Al: m = %.2e /keV, b = %.2e" % (popt_lin2[0], popt_lin2[1]))
+print("2 mm Al: m = %.2e /keV, b = %.2e" % (popt_lin3[0], popt_lin3[1]))
+
+plt.plot(energyArray[0:-1], 100*fit_fnc3(energyArray[0:-1], *popt_lin1));
+plt.plot(energyArray,  100*fit_fnc3(energyArray, *popt_lin2));
+plt.plot(energyArray,  100*fit_fnc3(energyArray, *popt_lin3));
+plt.plot(energyArray2, 100*fit_fnc3(energyArray2, *popt_lin4));
+plt.legend();
+
+plt.subplot(1,2,2); plt.grid();
+plt.plot(energyArray, np.multiply(penFrac_1mm, I*integrationPeriod), '.', label='1 mm Al');
+plt.plot(energyArray, np.multiply(penFrac_2mm, I*integrationPeriod), '.', label='2 mm Al');
+plt.plot(energyArray[0:-1], np.multiply(penFrac_LR[0:-1], I*integrationPeriod), '.', label='no Al');
+plt.xlabel("Beam Energy [keV]", fontsize=12);
+plt.ylabel("Detector Count Rate [cps]\n(all energy bins)", fontsize=12);
+plt.suptitle("AXIS Shielding Response $-$ Test 1",fontsize=14);
+
+plt.hlines(200, min(energyArray), max(energyArray), label='C$_{min}$');
+plt.hlines(83000, min(energyArray), max(energyArray), label='C$_{max}$'); plt.legend();
+```
+
+```{python}
+
+afire_ene = np.concatenate([energyArray2, energyArray[0:-1]])
+afire_pen = np.concatenate([penFrac_test3, penFrac_LR[0:-1]])
+print(afire_ene)
+print(afire_pen)
+
+
+afire_ene_E0 = [400, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
+afire_E0 = [359.89, 430.14, 363.01, 277.12, 225.36, 344.49, 356.19, 358.98, 369.75, 373.74, 385.57, 387.88]
+plt.figure()
+plt.plot(afire_ene_E0, afire_E0, '.');
+
+popt5, _ = curve_fit(fit_fnc3, afire_ene_E0[5:len(afire_E0)], afire_E0[5:len(afire_E0)]); 
+plt.plot(afire_ene_E0, fit_fnc3(afire_ene_E0, *popt5), 'r--')
+print(afire_ene_E0, fit_fnc3(afire_ene_E0, *popt5))
+```
+
+```{python}
+I                 = 6e6; # electrons/cm^2-sec
+integrationPeriod = 1;   # sec
+
+# hand-fit coefficients
+m2 = 0.008;
+b2 = -3.75;
+
+energyArray = [1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700]; # keV
+
+plt.figure(figsize=(14,5)); plt.subplot(1,2,1); plt.grid();
+plt.plot(energyArray, np.multiply(penFrac_test2, 100), '.', label='no Al');
+plt.xlabel("Beam Energy [keV]", fontsize=12);
+plt.ylabel("Beam Flux Penetration [%]", fontsize=12);
+plt.plot(energyArray, np.multiply(energyArray,m2) + b2, label='Linear Fit');
+plt.legend();
+
+plt.subplot(1,2,2); plt.grid();
+plt.plot(energyArray, np.multiply(penFrac_test2, I*integrationPeriod), '.', label='1 mm Al');
+plt.xlabel("Beam Energy [keV]", fontsize=12);
+plt.ylabel("Detector Count Rate [cps]\n(all energy bins)", fontsize=12);
+plt.suptitle("AXIS Shielding Response $-$ Test 2",fontsize=14);
+
+plt.hlines(200, min(energyArray), max(energyArray), label='C$_{min}$');
+plt.hlines(83000, min(energyArray), max(energyArray), label='C$_{max}$'); plt.legend();
+
+energyArray2 = [200, 250, 300, 350, 400, 450, 500]; # keV
+
+plt.figure(figsize=(14,5)); plt.subplot(1,2,1); plt.grid();
+plt.plot(energyArray2, np.multiply(penFrac_test2_2, 100), '.', label='no Al');
+plt.xlabel("Beam Energy [keV]", fontsize=12);
+plt.ylabel("Beam Flux Penetration [%]", fontsize=12);
+plt.plot(energyArray2, np.multiply(energyArray2,m2) + b2, label='Linear Fit');
+plt.legend();
+
+plt.subplot(1,2,2); plt.grid();
+plt.plot(energyArray2, np.multiply(penFrac_test2_2, I*integrationPeriod), '.', label='1 mm Al');
+plt.xlabel("Beam Energy [keV]", fontsize=12);
+plt.ylabel("Detector Count Rate [cps]\n(all energy bins)", fontsize=12);
+plt.suptitle("AXIS Shielding Response $-$ Test 2",fontsize=14);
+
+plt.hlines(200, min(energyArray2), max(energyArray2), label='C$_{min}$');
+plt.hlines(83000, min(energyArray2), max(energyArray2), label='C$_{max}$'); plt.legend();
+```
