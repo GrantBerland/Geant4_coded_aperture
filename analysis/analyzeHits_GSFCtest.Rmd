@@ -152,6 +152,25 @@ def readInFrames2Dictionary(extension, test):
             
         
         return frame
+    if test is 4:
+        return {"800": pd.read_csv("../data/resultsFile_GSFCtest_"+ str(extension) + "_1e8_800keV.csv", 
+                                     names=['E','det','i','j','x0','y0','z0','p']),
+                "900": pd.read_csv("../data/resultsFile_GSFCtest_"+ str(extension) + "_1e8_900keV.csv", 
+                                     names=['E','det','i','j','x0','y0','z0','p']),
+                "1000": pd.read_csv("../data/resultsFile_GSFCtest_"+ str(extension) + "_1e8_1000keV.csv", 
+                                     names=['E','det','i','j','x0','y0','z0','p']),
+                "1100": pd.read_csv("../data/resultsFile_GSFCtest_"+ str(extension) + "_1e8_1100keV.csv", 
+                                     names=['E','det','i','j','x0','y0','z0','p']),
+                "1200": pd.read_csv("../data/resultsFile_GSFCtest_"+ str(extension) + "_1e8_1200keV.csv", 
+                                     names=['E','det','i','j','x0','y0','z0','p']),
+                "1300": pd.read_csv("../data/resultsFile_GSFCtest_"+ str(extension) + "_1e8_1300keV.csv", 
+                                     names=['E','det','i','j','x0','y0','z0','p']),
+                "1400": pd.read_csv("../data/resultsFile_GSFCtest_"+ str(extension) + "_1e8_1400keV.csv", 
+                                     names=['E','det','i','j','x0','y0','z0','p']),
+                "1500": pd.read_csv("../data/resultsFile_GSFCtest_"+ str(extension) + "_1e8_1500keV.csv", 
+                                     names=['E','det','i','j','x0','y0','z0','p']),
+                "1600": pd.read_csv("../data/resultsFile_GSFCtest_"+ str(extension) + "_1e8_1600keV.csv", 
+                                     names=['E','det','i','j','x0','y0','z0','p'])};
             
 
 def fit_fnc1(x, a, b):
@@ -206,17 +225,42 @@ def plotTestSpectra(frame, bins, nSimParts, plotOn):
     print();
     return penetratingFraction;
 
-GSFC_data_2mm  = readInFrames2Dictionary("LR2", 1); # 2 mm aluminum
-GSFC_data_LR   = readInFrames2Dictionary("LR", 1);  # no aluminum, long run simulation
-GSFC_data_1mm  = readInFrames2Dictionary("1mm", 1); # 1 mm aluminum
-GSFC_data_test2= readInFrames2Dictionary("test2", 1);
-GSFC_data_test2_2= readInFrames2Dictionary("test2", 2);
-GSFC_data_lowerE = readInFrames2Dictionary("", 3);
+#GSFC_data_2mm  = readInFrames2Dictionary("LR2", 1); # 2 mm aluminum
+#GSFC_data_LR   = readInFrames2Dictionary("LR", 1);  # no aluminum, long run simulation
+#GSFC_data_1mm  = readInFrames2Dictionary("1mm", 1); # 1 mm aluminum
+#GSFC_data_test2= readInFrames2Dictionary("test2", 1);
+#GSFC_data_test2_2= readInFrames2Dictionary("test2", 2);
+#GSFC_data_lowerE = readInFrames2Dictionary("", 3);
+#GSFC_data_blanca = readInFrames2Dictionary("newTests", 4);
 nSimulation    = 1e6;  # typical simulation
 nSimulation_LR = 1e8;  # long run simulation
 nSimulation_LE = 1.01e8;  # lower energy simulation
 
-GSFC_data_LR['1100'].head()
+#GSFC_data_blanca['1100'].head()
+```
+
+```{python}
+GSFC_data_blanca = readInFrames2Dictionary("newTests", 4);
+```
+
+```{python}
+plt.figure(figsize=(8,5));
+for name in GSFC_data_blanca.keys():
+    (GSFC_data_blanca[name].p.value_counts()*100/nSimulation_LR).plot(kind='bar', 
+                                                                      alpha=0.25, 
+                                                                      label="E$_{B}$=%s keV"%name);
+plt.legend();
+plt.grid();
+plt.ylabel('Production Rate [%]');
+plt.yscale('linear');
+```
+
+```{python}
+bins = np.logspace(np.log10(50), np.log10(500), 20);
+bins = np.insert(bins, 0, 0);            # underflow
+#bins = np.insert(bins, len(bins), 1500); # overflow
+
+penFrac_blanca = plotTestSpectra(GSFC_data_blanca, bins, 1e8, True);
 ```
 
 ```{python}

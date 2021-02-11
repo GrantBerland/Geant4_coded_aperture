@@ -346,7 +346,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                       0,                          //copy number
                       checkOverlaps);        	  //overlaps checking
 
-   /*
    new G4PVPlacement(0,                     	  //no rotation
                 G4ThreeVector(-4.5*cm-2.5*mm/2-6.*mm-13.5*mm-2.*mm/2,
 			      0.,
@@ -357,7 +356,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                       false,                      //no boolean operation
                       0,                          //copy number
                       checkOverlaps);        	  //overlaps checking
-   */
    // Logical volumes
   G4LogicalVolume* logic_aperature_base =
     new G4LogicalVolume(logicAp1,            //its solid
