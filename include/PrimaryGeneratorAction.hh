@@ -78,8 +78,9 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
     static unsigned int fPhotonFileLineCounter;
     
-    G4ParticleDefinition* electronParticle; 
-    G4ParticleDefinition* photonParticle;
+    G4ParticleDefinition* fElectronParticle; 
+    G4ParticleDefinition* fPhotonParticle;
+    G4ParticleDefinition* fProtonParticle;
 
     G4String fPhotonFilename;
     G4int fRadioSourceType;

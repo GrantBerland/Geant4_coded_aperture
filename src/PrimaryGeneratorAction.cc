@@ -61,8 +61,9 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   photonPhiLimitDeg(40.),  
   fDistType(0),
   fE0(100.),
-  electronParticle(0),
-  photonParticle(0),
+  fElectronParticle(0),
+  fPhotonParticle(0),
+  fProtonParticle(0),
   fPhotonFilename(),
   fRadioSourceType(0),
   fPrimaryMessenger()
@@ -72,9 +73,11 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 
   fPrimaryMessenger = new PrimaryGeneratorMessenger(this);
 
-  electronParticle = G4ParticleTable::GetParticleTable()->FindParticle("e-");
+  fElectronParticle = G4ParticleTable::GetParticleTable()->FindParticle("e-");
   
-  photonParticle = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
+  fProtonParticle = G4ParticleTable::GetParticleTable()->FindParticle("proton");
+  
+  fPhotonParticle = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
 
   
 }
@@ -96,7 +99,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   //CalculateParticlesToGenerate();
 
   // Selects electron for particle type
-  fParticleGun->SetParticleDefinition(photonParticle);
+  fParticleGun->SetParticleDefinition(fPhotonParticle);
 
   G4double x, y, z;
   G4double xDir, yDir, zDir;
@@ -293,7 +296,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 		energy = fE0 * keV;
   		
-		fParticleGun->SetParticleDefinition(electronParticle);
+		//fParticleGun->SetParticleDefinition(fElectronParticle);
+		fParticleGun->SetParticleDefinition(fProtonParticle);
 
 		break;
 	case 8:
@@ -310,7 +314,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		
 		energy = fE0 * keV;
 		
-		fParticleGun->SetParticleDefinition(electronParticle);
+		fParticleGun->SetParticleDefinition(fElectronParticle);
 		
 		break;
 	
@@ -318,6 +322,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		throw std::invalid_argument("Choose distribution type!");
   }
 
+  // Load particle state into Geant methods
   fParticleGun->SetParticlePosition(G4ThreeVector(x, y, z));
   fParticleGun->SetParticleMomentumDirection(
 		  G4ThreeVector(xDir, yDir, zDir));
