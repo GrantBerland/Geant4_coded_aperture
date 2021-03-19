@@ -279,10 +279,10 @@ for name in GSFC_data_blanca.keys():
                                                          alpha=0.25, label='e+', density=False);
     
     ye = electronQDE * he1[0]/mc_factor
-    xe = he1[1][0:-1] + np.diff(he2[1])/2
+    xe = he1[1][0:-1] + np.diff(he1[1])/2
 
     yp = photonQDE * hp1[0]/mc_factor
-    xp = hp1[1][0:-1] + np.diff(hp2[1])/2
+    xp = hp1[1][0:-1] + np.diff(hp1[1])/2
     
     xa = bins;
     ya_p = np.interp(xa, xp, yp)
@@ -381,14 +381,14 @@ NF = 0.2;
 qe_est = [];
 for name in GSFC_data_blanca.keys():
     f, [ax1, ax2] = plt.subplots(1, 2, figsize=(14, 4), sharey=True, sharex=True)
-    he1=np.histogram(GSFC_data_blanca[name].E[GSFC_data_blanca[name].p == 'e-'], bins=bins_mod);
-    hp1=np.histogram(GSFC_data_blanca[name].E[GSFC_data_blanca[name].p == 'gamma'], bins=bins_mod);
+    he1=np.histogram(GSFC_data_blanca[name].E[GSFC_data_blanca[name].p == 'e-'], bins=bins);
+    hp1=np.histogram(GSFC_data_blanca[name].E[GSFC_data_blanca[name].p == 'gamma'], bins=bins);
     
     ye = electronQDE * he1[0]/mc_factor
-    xe = he1[1][0:-1] + np.diff(he2[1])/2
+    xe = he1[1][0:-1] + np.diff(he1[1])/2
 
     yp = photonQDE * hp1[0]/mc_factor
-    xp = hp1[1][0:-1] + np.diff(hp2[1])/2
+    xp = hp1[1][0:-1] + np.diff(hp1[1])/2
     
     ye += np.random.randn(ye.size)*NF*ye;
     yp += np.random.randn(yp.size)*NF*yp;
@@ -411,14 +411,21 @@ for name in GSFC_data_blanca.keys():
 
     
     ya_e = np.interp(xa, xe, he2[0]/mc_factor)
+    a  = popt2p2[0];
+    b  = popt2p2[1];
+    c  = popt2p2[2];
+    m  = popt2a2[0];
+    d  = popt2a2[1];
+    E0 = popt2e2[1];
+    E  = bins;
     Cg = np.sum(ya_p[((xa >= 50) & (xa <= 300))]);
     Ne = np.sum(ya_e[((xa >= 50) & (xa <= 300))]);
     
     q1 = photonQDE/1.25 * (np.trapz(x=widths[1:16], y=m*bins[1:16]+d) - Cg) / Ne;
     
 
-    he2=np.histogram(GSFC_data_blanca1mmAl[name].E[GSFC_data_blanca1mmAl[name].p == 'e-'], bins=bins_mod) 
-    hp2=np.histogram(GSFC_data_blanca1mmAl[name].E[GSFC_data_blanca1mmAl[name].p == 'gamma'], bins=bins_mod);
+    he2=np.histogram(GSFC_data_blanca1mmAl[name].E[GSFC_data_blanca1mmAl[name].p == 'e-'], bins=bins) 
+    hp2=np.histogram(GSFC_data_blanca1mmAl[name].E[GSFC_data_blanca1mmAl[name].p == 'gamma'], bins=bins);
     
 
     ye = electronQDE * he2[0]/mc_factor
@@ -477,6 +484,43 @@ plt.subplot(1,2,2); plt.grid();
 plt.plot(range(800, 1600+100, 100), np.subtract(qe_est, electronQDE), '.-');
 plt.xlabel('Beam Energy [keV]', fontsize=14);
 plt.ylabel(r'$q_e - \hat{q}_e$', fontsize=14);
+```
+
+```{python}
+
+Nparts = 1e8
+penFracE = np.zeros([len(GSFC_data_blanca1mmAl), 1])
+penFracG = np.zeros([len(GSFC_data_blanca1mmAl), 1])
+
+penFracE_AXIS = np.zeros([len(GSFC_data_blanca1mmAl), 1])
+penFracG_AXIS = np.zeros([len(GSFC_data_blanca1mmAl), 1])
+
+for ind, name in enumerate(GSFC_data_blanca1mmAl.keys()):
+    penFracE[ind] = len(GSFC_data_blanca1mmAl[name].E[GSFC_data_blanca1mmAl[name].p == 'e-']) / Nparts
+    penFracG[ind] = len(GSFC_data_blanca1mmAl[name].E[GSFC_data_blanca1mmAl[name].p == 'gamma']) / Nparts
+    
+    penFracE_AXIS[ind] = len(GSFC_data_blanca1mmAl[name].E[(GSFC_data_blanca1mmAl[name].p == 'e-') & 
+                                                      (GSFC_data_blanca1mmAl[name].E > 50)         &
+                                                      (GSFC_data_blanca1mmAl[name].E < 300)]) / Nparts
+    penFracG_AXIS[ind] = len(GSFC_data_blanca1mmAl[name].E[(GSFC_data_blanca1mmAl[name].p == 'gamma')  & 
+                                                      (GSFC_data_blanca1mmAl[name].E > 50)             &
+                                                      (GSFC_data_blanca1mmAl[name].E < 300)]) / Nparts
+
+
+
+f, [ax1, ax2] = plt.subplots(1, 2, sharey=True, figsize=(16, 4)); 
+ax1.grid();
+ax1.plot(Earray, 100*penFracE, '.-', label='Electron Penetration');
+ax1.plot(Earray, 100*penFracG, '.-', label='Photon Production');
+ax1.set_xlabel('Beam Energy [keV]', fontsize=12); ax1.legend();
+ax1.set_ylabel('Detections From Electrons [%]', fontsize=12);
+ax1.set_title("Electron and Photon Detections over all Energies");
+
+ax2.grid();
+ax2.plot(Earray, 100*penFracE_AXIS, '.-', label='Electron Penetration');
+ax2.plot(Earray, 100*penFracG_AXIS, '.-', label='Photon Production');
+ax2.set_xlabel('Beam Energy [keV]', fontsize=12); ax2.legend();
+ax2.set_title("Electron and Photon Detections over AXIS Detection Energies");
 ```
 
 ```{python}
