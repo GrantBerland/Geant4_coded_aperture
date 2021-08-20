@@ -1,0 +1,140 @@
+# Macro file for example B1
+# 
+# Can be run in batch, without graphic
+# or interactively: Idle> /control/execute run1.mac
+#
+# Change the default number of workers (in multi-threading mode) 
+#/run/numberOfWorkers 4
+#
+# Initialize kernel
+
+
+# Set low energy EM processes, including fluorescence
+/process/em/fluo false 
+/process/em/auger false
+/process/em/augerCascade false
+/process/em/pixe false
+/process/em/deexcitationIgnoreCut false
+
+
+#/cuts/setMaxCutEnergy 50 eV
+/run/initialize
+
+
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+# 0 = near point source
+# 1 = infinitely far away point source
+/energy/setDistributionType 4
+/energy/setFoldingEnergy 100    # [keV]
+/energy/setEventAngle 45.  	# [deg]
+
+/dataCollection/setHitFileName hits4_4_45deg.csv
+
+/run/beamOn 10000
+
+/process/em/fluo false 
+/process/em/auger false
+/process/em/augerCascade false
+/process/em/pixe false
+/process/em/deexcitationIgnoreCut false
+
+
+#/cuts/setMaxCutEnergy 50 eV
+/run/initialize
+
+
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+# 0 = near point source
+# 1 = infinitely far away point source
+/energy/setDistributionType 4
+/energy/setFoldingEnergy 100    # [keV]
+/energy/setEventAngle 40.  	# [deg]
+
+/dataCollection/setHitFileName hits4_4_40deg.csv
+
+/run/beamOn 10000
+
+#/cuts/setMaxCutEnergy 50 eV
+/run/initialize
+
+
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+# 0 = near point source
+# 1 = infinitely far away point source
+/energy/setDistributionType 4
+/energy/setFoldingEnergy 100    # [keV]
+/energy/setEventAngle 35.  	# [deg]
+
+/dataCollection/setHitFileName hits4_4_35deg.csv
+
+/run/beamOn 10000
+
+#/cuts/setMaxCutEnergy 50 eV
+/run/initialize
+
+
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+# 0 = near point source
+# 1 = infinitely far away point source
+/energy/setDistributionType 4
+/energy/setFoldingEnergy 100    # [keV]
+/energy/setEventAngle 30.  	# [deg]
+
+/dataCollection/setHitFileName hits4_4_30deg.csv
+
+/run/beamOn 10000
+
+#/cuts/setMaxCutEnergy 50 eV
+/run/initialize
+
+
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+# 0 = near point source
+# 1 = infinitely far away point source
+/energy/setDistributionType 4
+/energy/setFoldingEnergy 100    # [keV]
+/energy/setEventAngle 25.  	# [deg]
+
+/dataCollection/setHitFileName hits4_4_25deg.csv
+
+/run/beamOn 10000
+
+#/cuts/setMaxCutEnergy 50 eV
+/run/initialize
+
+
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+# 0 = near point source
+# 1 = infinitely far away point source
+/energy/setDistributionType 4
+/energy/setFoldingEnergy 100    # [keV]
+/energy/setEventAngle 20.  	# [deg]
+
+/dataCollection/setHitFileName hits4_4_20deg.csv
+
+/run/beamOn 10000
+

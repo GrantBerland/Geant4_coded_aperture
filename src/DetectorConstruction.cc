@@ -68,7 +68,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   // Envelope parameters
   //
-  G4double env_sizeXY = 20*cm, env_sizeZ = 100*cm;
+  G4double env_sizeXY = 20.*cm, env_sizeZ = 40.*cm;
 
     // Material: Vacuum
   G4Material* vacuum_material = new G4Material("Vacuum",
@@ -522,6 +522,33 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   */
 
+
+
+  G4Box* FaradayCup_box = new G4Box("FC",
+		  		    15.*cm/2.,
+				    15.*cm/2.,
+				    9.65*mm/2.);
+
+
+
+
+  G4LogicalVolume* logicFC = new G4LogicalVolume(FaradayCup_box,
+		  			nist->FindOrBuildMaterial("G4_Al"),
+					"FC"); 
+
+  
+  G4double xShift = 0. * cm;
+  G4double yShift = 0. * cm;
+  
+  new G4PVPlacement(0,                     	  // No rotation
+                    G4ThreeVector(xShift,yShift,-20.*cm), 
+	      	    logicFC,                 // Logical volume
+                    "FC",                     // Name
+                    logicEnv,                     // Mother volume
+                    false,                        // Boolean operation
+                    0,                            // Copy number
+                    checkOverlaps);        	  // Overlaps checking
+  /*
   // Linepair test has equal line thickness with interline distance
   G4double line_thickness = 4.*mm;
   G4double LP_spacing     = 2.*line_thickness;
@@ -596,7 +623,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                       0,                          //copy number
                       checkOverlaps);        	  //overlaps checking
   
-  
+  */ 
   // always return the physical World
   return physWorld;
 }

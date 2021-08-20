@@ -280,10 +280,10 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 		break;
 
-	case 7: // GSFC Van de Graaf generator 
+	case 7: // GSFC Van de Graaf generator, shot from the side 
 		
-		// 2 cm diameter spot size
-		R     = 2.54 * cm;
+		// 3.5 in. diameter spot size
+		R     = 3.5/2. * 2.54 * cm;
 		theta = G4UniformRand() * 2. * fPI;
 		
 		x = -10.*cm;
@@ -294,19 +294,22 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		yDir = 0;
 		zDir = 0;
 
+		// Monoenergetic beam
 		energy = fE0 * keV;
   		
-		//fParticleGun->SetParticleDefinition(fElectronParticle);
-		fParticleGun->SetParticleDefinition(fProtonParticle);
+		fParticleGun->SetParticleDefinition(fElectronParticle);
 
 		break;
-	case 8:
-		R = 2.54 * cm;
+		
+	case 8: // GSFC Van de Graaf generator, shot from the side 
+ 
+		// 4 in. diameter spot size
+		R = 2. * 2.54 * cm;
 		theta = G4UniformRand() * 2. * fPI;
 
-		x = -2.*cm+ R * std::sqrt(G4UniformRand()) * sin(theta);
-		y = 2.*cm + R * std::sqrt(G4UniformRand()) * cos(theta);
-		z = -10.*cm;
+		x = R * std::sqrt(G4UniformRand()) * sin(theta);
+		y = R * std::sqrt(G4UniformRand()) * cos(theta);
+		z = -30.*cm;
 		
 		xDir = 0;
 		yDir = 0;
