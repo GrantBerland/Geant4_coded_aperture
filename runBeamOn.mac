@@ -26,10 +26,6 @@
 /event/verbose 0
 /tracking/verbose 0
 
-# 0 = near point source
-# 1 = infinitely far away point source
-/energy/setDistributionType 2
-/energy/setFoldingEnergy 100    # [keV]
 
+/control/foreach runBeamOnGSFC.mac E0 300 350 400 500 600 700 
 
-/run/beamOn 1000
