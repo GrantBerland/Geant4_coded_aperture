@@ -57,6 +57,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   photonPhiLimitDeg(45.),  // based on 1000 km diameter event
   fDistType(0),
   fE0(100.),
+  fSourceZ(20),
   electronParticle(0),
   photonParticle(0),
   fPrimaryMessenger()
@@ -108,15 +109,25 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   
   switch(fDistType)
   {
-	case 0: // point source, near
-  		x = 10.*mm;
-		y = 5.*mm;
-  		z = -20.*cm;
+	  case 0: // point source, near
+  		//x = 10.*mm;
+		//y = 5.*mm;
+  		x = 0;
+		y = 0;
+		//z = -200.*cm;
+		z = -fSourceZ * cm;
 
-  		narrowingOffset = 0.4;
-  		xDir = G4UniformRand()*narrowingOffset-narrowingOffset/2.;
+
+	        // Cone size: pi/2 - arctan(sqrt(2)/n)
+  		//narrowingOffset = 0.4;
+  		
+		narrowingOffset = 6 * std::sqrt(2) / std::abs(z/cm);
+
+
+		xDir = G4UniformRand()*narrowingOffset-narrowingOffset/2.;
   		yDir = G4UniformRand()*narrowingOffset-narrowingOffset/2.;
   		zDir = 1;
+		
 		break;
 
 	case 1: // point source, infinitely far

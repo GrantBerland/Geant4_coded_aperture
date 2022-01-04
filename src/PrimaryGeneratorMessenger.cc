@@ -25,6 +25,10 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* pri
   fDcmd->SetDefaultValue(100.);
   fDcmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
+  fDcmd2 = new G4UIcmdWithADouble("/energy/setSourceDistance",this);
+  fDcmd2->SetParameterName("Set source distance in cm",true);
+  fDcmd2->SetDefaultValue(20.);
+  fDcmd2->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 
 PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger()
@@ -32,13 +36,13 @@ PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger()
   delete fPrimDir;
   delete fcmd;
   delete fDcmd;
+  delete fDcmd2;
 }
 
 
 void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, 
 					    G4String newValue)
 {
-
   if(command == fcmd){
     fPrimaryGenerator->SetDistType(std::stoi(newValue));
   }    	  
@@ -47,4 +51,7 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command,
     fPrimaryGenerator->SetFoldingEnergy(std::stod(newValue));
   }
 
+  if(command == fDcmd2){
+    fPrimaryGenerator->SetSourceDistance(std::stod(newValue));
+  }
 }

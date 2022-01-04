@@ -27,6 +27,7 @@ private:
   G4UIdirectory*             fPrimDir;
   G4UIcmdWithAnInteger*      fcmd;
   G4UIcmdWithADouble*        fDcmd;
+  G4UIcmdWithADouble*        fDcmd2;
 
 };
 

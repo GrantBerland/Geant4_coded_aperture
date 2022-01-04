@@ -94,7 +94,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   //
   G4double world_sizeXY = 1.2*env_sizeXY;
   G4double world_sizeZ  = 1.2*env_sizeZ;
-  // G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
+  G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
+  //G4Material* world_mat = vacuum_material;
 
   G4Box* solidWorld =
     new G4Box("World",                       //its name
@@ -102,7 +103,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   G4LogicalVolume* logicWorld =
     new G4LogicalVolume(solidWorld,          //its solid
-                        vacuum_material,           //its material
+                        world_mat,           //its material
                         "World");            //its name
 
   G4VPhysicalVolume* physWorld =
