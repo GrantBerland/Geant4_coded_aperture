@@ -8,3 +8,4 @@
 *.cc.o
 /build/*
 /results
+*.ipynb_checkpoints
