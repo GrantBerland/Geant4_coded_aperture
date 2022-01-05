@@ -148,15 +148,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   G4double boxXY 	   = 4.*cm;
   G4double boxZ  	   = 1.5*mm;
-  G4double aperatureSquare = 0.22*cm; 
+  G4double aperatureSquare = 0.21*cm; 
   G4double ap_det_spacing  = 20.*mm;
   G4double detectorXY      = 40.*mm;
   G4double detectorZ       = 5.*mm;
 
 
   G4Box* aperature_base = new G4Box("Aperature-base",
-		   		    2.*boxXY/2.,
-				    2.*boxXY/2.,
+		   		    boxXY/2. + 1.*mm,
+				    boxXY/2. + 1.*mm,
 				    boxZ/2.);
 
   G4RotationMatrix* rotm = new G4RotationMatrix();   
@@ -166,12 +166,14 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 				aperatureSquare/2.,
 				boxZ+5.*mm);
   
-  
+  G4String coded_ap_filename = "NTHT_MURA_array.txt";
+
+
   G4UnionSolid* swapSolid;
   G4String placementXY_str; 
   G4double placementX, placementY; 
   G4String token;
-  std::ifstream placementFile("coded_aperture_array.txt", std::ios_base::in);
+  std::ifstream placementFile(coded_ap_filename, std::ios_base::in);
   
   // Get number of lines in file
   int numberOfBoxes = 0;
@@ -182,7 +184,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 
   // Reopen file to start from first line
-  placementFile.open("coded_aperture_array.txt", std::ios_base::in);
+  placementFile.open(coded_ap_filename, std::ios_base::in);
   getline(placementFile, placementXY_str, '\n');
   
   token = placementXY_str.substr(
@@ -240,15 +242,24 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
   placementFile.close();
 
-  G4SubtractionSolid* logicAp1 = 
-	    new G4SubtractionSolid("Aperature-base",
+  G4int pm1[4] = {1, -1, 1, -1};
+  G4int pm2[4] = {1, 1, -1, -1};
+  G4double dimX = -2.1*cm;
+  G4double dimZ = -2.1*cm;
+
+
+
+  for(int i=0; i < 4; i++)
+  {
+
+    G4SubtractionSolid* logicAp1 = new G4SubtractionSolid("Aperature-base",
 	  			   aperature_base,
 	  			   coded_boxes,
 	  			   rotm,
 	  			   G4ThreeVector(0.,0.,0.));
 
-  G4LogicalVolume* logic_aperature_base =
-    new G4LogicalVolume(logicAp1,            //its solid
+    G4LogicalVolume* logic_aperature_base =
+      new G4LogicalVolume(logicAp1,            //its solid
                         nist->FindOrBuildMaterial("G4_W"), // material
                         "Aperature-base");         //its name
 
@@ -256,7 +267,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
  
     new G4PVPlacement(0,                     //no rotation
-                      G4ThreeVector(),       //at (0,0,0)
+                      G4ThreeVector(pm1[i]*dimX,pm2[i]*dimZ,0.),       //at (0,0,0)
                       logic_aperature_base,  //its logical volume
                       "Aperature-base",               //its name
                       logicEnv,                     //its mother  volume
@@ -264,6 +275,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                       0,                     //copy number
                       checkOverlaps);        //overlaps checking
 
+  }
   
   G4Box* detectorBox = new G4Box("Detector",
 		  		    0.5*detectorXY,
@@ -280,10 +292,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   detectorAssembly->AddPlacedVolume(logicDetector, Tr);
 
 
-  G4int pm1[4] = {1, -1, 1, -1};
-  G4int pm2[4] = {1, 1, -1, -1};
-  G4double dimX = -2.1*cm;
-  G4double dimZ = -2.1*cm;
   
   unsigned int numberDetectors = 4;
   for(unsigned int i=0; i<numberDetectors; i++)

@@ -56,6 +56,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   lossConeAngleDeg(64.),
   photonPhiLimitDeg(45.),  // based on 1000 km diameter event
   fDistType(0),
+  fEnergyDistType(0),
   fE0(100.),
   fSourceZ(20),
   electronParticle(0),
@@ -103,10 +104,26 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   detectorSize  = 40*2;
 
+
+  switch(fEnergyDistType)
+  {
+          case 0:
+	    energy = fE0;
+	    break;
+	  case 1:
+ 	    energy = -fE0 * std::log(G4UniformRand()) * keV;
+	    break;
+	  default:
+	    throw std::invalid_argument("Choose energy distribution type!");
+	    break;
+  }
+  
+  /*
   do{
     energy = -(fE0-50) * std::log(1 - G4UniformRand()) * keV;
   } while(energy < 50.*keV);
-  
+  */
+
   switch(fDistType)
   {
 	  case 0: // point source, near
@@ -169,7 +186,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 		break;
 	default:
-		throw std::invalid_argument("Choose distribution type!");
+		throw std::invalid_argument("Choose spatial distribution type!");
   }
 
   fParticleGun->SetParticlePosition(G4ThreeVector(x, y, z));

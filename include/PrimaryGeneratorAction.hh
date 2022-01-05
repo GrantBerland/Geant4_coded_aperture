@@ -59,6 +59,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     void SetDistType(G4int dType){ fDistType = dType; };
     void SetFoldingEnergy(G4double ene){ fE0 = ene; }; 
     void SetSourceDistance(G4double z){ fSourceZ = z; }; 
+    void SetEnergyDistribution(G4int n){ fEnergyDistType = n; };
 
     // Method to access particle gun
     const G4ParticleGun* GetParticleGun() const { return fParticleGun; }
@@ -71,6 +72,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4double photonPhiLimitDeg;
 
     G4int    fDistType;
+    G4int    fEnergyDistType;
     G4double fE0;
     G4double fSourceZ;
 

@@ -20,6 +20,11 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* pri
   fcmd->SetDefaultValue(0);
   fcmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
+  fcmd2 = new G4UIcmdWithAnInteger("/energy/setEnergyDistributionType",this);
+  fcmd2->SetParameterName("0-Monoenergetic, 1-Exponential",true);
+  fcmd2->SetDefaultValue(0);
+  fcmd2->AvailableForStates(G4State_PreInit, G4State_Idle);
+  
   fDcmd = new G4UIcmdWithADouble("/energy/setFoldingEnergy",this);
   fDcmd->SetParameterName("Set folding energy in keV",true);
   fDcmd->SetDefaultValue(100.);
@@ -35,6 +40,7 @@ PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger()
 {
   delete fPrimDir;
   delete fcmd;
+  delete fcmd2;
   delete fDcmd;
   delete fDcmd2;
 }
@@ -47,6 +53,10 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command,
     fPrimaryGenerator->SetDistType(std::stoi(newValue));
   }    	  
 
+  if(command == fcmd2){
+    fPrimaryGenerator->SetEnergyDistribution(std::stoi(newValue));
+  }    	  
+  
   if(command == fDcmd){
     fPrimaryGenerator->SetFoldingEnergy(std::stod(newValue));
   }
